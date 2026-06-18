@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebGIS Aksesibilitas Faskes — Kabupaten Sumenep</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+    :root {
+      --accent:#1a7fd4; --accent-2:#0ec4a0; --accent-glow:rgba(26,127,212,0.15);
+      --danger:#e84545; --warn:#f59e0b; --ok:#22c474;
+      --t1:#0d1f35; --t2:#4a6080; --t3:#8a9bb0;
+      --bg:#e8eef4; --card:#f8fafc; --border:rgba(200,215,235,0.9);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--t1);display:flex;flex-direction:column;overflow:hidden}
+
+    /* TOPBAR */
+    #topbar{display:flex;align-items:center;gap:14px;padding:0 18px;height:54px;background:#fff;border-bottom:1px solid rgba(26,127,212,0.10);flex-shrink:0;z-index:1100;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+    .logo-crystal{width:36px;height:36px;background:linear-gradient(135deg,#1a7fd4,#0ec4a0);border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+    .logo-crystal svg{width:18px;height:18px;fill:#fff}
+    .title-block{flex-shrink:0}
+    .title-block h1{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#0d1f35;letter-spacing:.2px}
+    .title-block p{font-size:10px;color:#8a9bb0;margin-top:1px}
+    .topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+    .live-pill{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;padding:4px 10px;border-radius:20px;background:rgba(26,127,212,0.08);border:1px solid rgba(26,127,212,0.22);color:#1a7fd4;letter-spacing:.5px;white-space:nowrap}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:#22c474;animation:pls 2s infinite}
+    @keyframes pls{0%,100%{opacity:1}50%{opacity:.5}}
+
+    /* SHARED NAV (consistent with Beranda) */
+    .main-nav{display:flex;gap:2px;flex:1;justify-content:center}
+    .nav-link{padding:7px 13px;border-radius:8px;font-size:12px;font-weight:600;color:#4a6080;text-decoration:none;cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif;white-space:nowrap;transition:color .15s,background .15s}
+    .nav-link:hover{color:#1a7fd4;background:rgba(26,127,212,.06)}
+    .nav-link.active{color:#1a7fd4;background:rgba(26,127,212,.10)}
+    .menu-toggle{display:none;width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:#f8fafc;color:#4a6080;font-size:15px;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center}
+    .mobile-dropdown{position:absolute;top:54px;right:14px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 28px rgba(30,60,120,.16);padding:6px;display:none;flex-direction:column;gap:2px;z-index:1300;min-width:160px}
+    .mobile-dropdown.open{display:flex}
+    .mobile-dropdown .nav-link{text-align:left;width:100%}
+    @media (max-width:880px){
+      .main-nav{display:none}
+      .menu-toggle{display:flex}
+      .title-block p{display:none}
+    }
+
+    /* LAYOUT */
+    #main{display:flex;flex:1;overflow:hidden;position:relative;min-height:0}
+    #map{position:absolute;top:0;left:0;right:0;bottom:0;z-index:1}
+
+    /* LEFT PANEL */
+    #panel{position:absolute;top:14px;left:14px;bottom:14px;width:318px;z-index:500;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 4px 24px rgba(30,60,120,.10);display:flex;flex-direction:column;overflow:hidden}
+    .panel-header{padding:14px 16px 0;flex-shrink:0}
+    .panel-title{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#8a9bb0;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px}
+    #tabs{display:flex;gap:2px;padding:0 16px;flex-shrink:0;border-bottom:1px solid var(--border)}
+    .tab{flex:1;padding:8px 4px 9px;font-size:10.5px;font-weight:600;cursor:pointer;border:none;background:none;color:#8a9bb0;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s;text-align:center;font-family:'Inter',sans-serif}
+    .tab:hover{color:#1a7fd4}
+    .tab.active{color:#1a7fd4;border-bottom-color:#1a7fd4}
+    .tab-body{display:none;flex:1;overflow-y:auto;padding:14px 16px 20px}
+    .tab-body.active{display:block}
+    .tab-body::-webkit-scrollbar{width:3px}
+    .tab-body::-webkit-scrollbar-thumb{background:rgba(26,127,212,.15);border-radius:2px}
+
+    .sect{font-size:9.5px;font-weight:700;letter-spacing:1.1px;color:#8a9bb0;text-transform:uppercase;margin:16px 0 8px}
+    .sect:first-child{margin-top:0}
+
+    .search-wrap{position:relative;margin-bottom:10px}
+    .search-wrap input{width:100%;padding:8px 32px 8px 12px;background:#f8fafc;border:1px solid var(--border);border-radius:9px;font-size:11.5px;color:#0d1f35;outline:none;font-family:'Inter',sans-serif;transition:border-color .2s}
+    .search-wrap input::placeholder{color:#8a9bb0}
+    .search-wrap input:focus{border-color:#1a7fd4}
+    .search-icon{position:absolute;right:9px;top:50%;transform:translateY(-50%);color:#8a9bb0;font-size:13px;pointer-events:none}
+
+    .chk-row{display:flex;align-items:center;gap:9px;font-size:11.5px;color:#0d1f35;cursor:pointer;padding:5px 0;transition:color .15s}
+    .chk-row:hover{color:#1a7fd4}
+    .chk-row input[type=checkbox]{width:14px;height:14px;accent-color:#1a7fd4;cursor:pointer;flex-shrink:0}
+    .dot-ind{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+    select{width:100%;background:#f8fafc;border:1px solid var(--border);border-radius:9px;padding:7px 10px;font-size:11.5px;color:#0d1f35;outline:none;cursor:pointer;font-family:'Inter',sans-serif}
+    select:focus{border-color:#1a7fd4}
+    input[type=range]{width:100%;accent-color:#1a7fd4;border:none;background:none;padding:2px 0}
+    .range-labels{display:flex;justify-content:space-between;font-size:9.5px;color:#8a9bb0;margin-top:3px}
+
+    /* STAT CARDS */
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+    .stat-card{background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:11px 13px;position:relative;overflow:hidden}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#1a7fd4;border-radius:12px 12px 0 0}
+    .stat-card.ok::before{background:#22c474}
+    .stat-card.warn::before{background:#f59e0b}
+    .stat-card.danger::before{background:#e84545}
+    .stat-card.purple::before{background:#8b5cf6}
+    .stat-card .val{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#0d1f35;line-height:1}
+    .stat-card .val.sm{font-size:16px}
+    .stat-card .lbl{font-size:9.5px;color:#8a9bb0;margin-top:4px}
+    .stat-card .sub{font-size:9px;color:#22c474;margin-top:2px;font-weight:600}
+    .stat-card .sub.bad{color:#e84545}
+    .stat-card .sub.warn{color:#f59e0b}
+
+    /* COV BAR */
+    .cov-bar{height:6px;border-radius:3px;background:#e8eef4;margin:6px 0 3px;overflow:hidden;position:relative}
+    .cov-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#1a7fd4,#0ec4a0);transition:width .8s ease}
+    .cov-mark{position:absolute;top:0;bottom:0;width:2px;background:#f59e0b;opacity:.8}
+
+    /* MINI BAR ROW */
+    .mini-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+    .mini-bar-label{font-size:10px;color:#4a6080;width:90px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mini-bar-track{flex:1;height:5px;background:#e8eef4;border-radius:3px;overflow:hidden}
+    .mini-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+    .mini-bar-val{font-size:10px;color:#8a9bb0;width:20px;text-align:right;flex-shrink:0}
+
+    /* LEGEND */
+    .legend-row{display:flex;align-items:center;gap:8px;font-size:11px;color:#4a6080;margin-bottom:5px}
+    .legend-swatch{width:14px;height:14px;border-radius:4px;flex-shrink:0}
+
+    /* FACILITY LIST */
+    #facility-list{display:flex;flex-direction:column;gap:5px}
+    .fac-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;background:#f8fafc;border:1px solid var(--border);cursor:pointer;transition:border-color .15s,box-shadow .15s}
+    .fac-item:hover{border-color:#1a7fd4;box-shadow:0 0 0 3px rgba(26,127,212,.08)}
+    .fac-info h4{font-size:11.5px;font-weight:700;color:#0d1f35}
+    .fac-info p{font-size:10px;color:#8a9bb0;margin-top:1px}
+
+    /* BTNS */
+    .btn{display:block;width:100%;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:opacity .2s;margin-top:8px}
+    .btn-primary{background:linear-gradient(135deg,#1a7fd4,#0ec4a0);color:#fff;box-shadow:0 3px 10px rgba(26,127,212,.25)}
+    .btn-primary:hover{opacity:.88}
+    .btn-ghost{background:#f8fafc;border:1px solid var(--border);color:#0d1f35}
+    .btn-ghost:hover{border-color:#1a7fd4;color:#1a7fd4}
+
+    .chart-wrap{position:relative;height:160px;margin-bottom:14px}
+    .chart-wrap.sm{height:130px}
+    .chart-wrap.xs{height:100px}
+
+    #route-result{margin-top:12px}
+
+    /* POPUP PANEL */
+    #focus-info{position:absolute;top:14px;right:14px;z-index:500;background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px 15px 13px;box-shadow:0 4px 20px rgba(30,60,120,.12);width:250px;display:none}
+    .fi-type-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+    .fi-name{font-size:13px;font-weight:700;color:#0d1f35;line-height:1.3;margin-bottom:3px}
+    .fi-kec{font-size:10.5px;color:#8a9bb0;margin-bottom:10px}
+    .fi-divider{height:1px;background:var(--border);margin:8px 0}
+    .fi-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+    .fi-metric{background:#f8fafc;border-radius:8px;padding:7px 9px;border:1px solid var(--border)}
+    .fi-metric .mv{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#0d1f35;line-height:1}
+    .fi-metric .ml{font-size:9px;color:#8a9bb0;margin-top:2px}
+    .fi-row{font-size:11px;color:#4a6080;margin-top:5px;display:flex;gap:6px;align-items:flex-start}
+    .fi-row b{color:#0d1f35;min-width:72px;flex-shrink:0}
+    .fi-chip-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+    .fi-chip{font-size:9.5px;padding:2px 8px;border-radius:20px;border:1px solid;font-weight:600}
+    .fi-close{position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;color:#8a9bb0;font-size:14px;line-height:1;width:22px;height:22px;border-radius:50%;display:grid;place-items:center}
+    .fi-close:hover{background:#f0f4f8;color:#0d1f35}
+
+    /* BOTTOM LEGEND */
+    #legend-bar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:500;background:#fff;border:1px solid var(--border);border-radius:40px;box-shadow:0 4px 14px rgba(30,60,120,.08);padding:7px 18px;display:flex;align-items:center;gap:16px;white-space:nowrap}
+    .lb-item{display:flex;align-items:center;gap:6px;font-size:10.5px;color:#4a6080}
+    .lb-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .lb-divider{width:1px;height:14px;background:var(--border)}
+
+    /* BLANK BADGE */
+    #blank-badge{position:absolute;bottom:14px;right:14px;z-index:500;background:#fff;border:1px solid rgba(232,68,68,.25);border-radius:12px;padding:8px 13px;display:flex;align-items:center;gap:8px;font-size:11px;color:#e84545;font-weight:600}
+    .bb-pulse{width:8px;height:8px;border-radius:50%;background:#e84545;animation:pls 1.8s infinite}
+
+    /* LOADING */
+    #loading{position:fixed;inset:0;background:#f0f4f8;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s}
+    .load-logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#1a7fd4,#0ec4a0);display:grid;place-items:center;margin-bottom:20px}
+    .load-logo svg{width:28px;height:28px;fill:#fff}
+    .load-bar{width:200px;height:3px;background:rgba(0,0,0,.08);border-radius:2px;overflow:hidden;margin-top:16px}
+    .load-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#1a7fd4,#0ec4a0);animation:lb 1.4s ease-in-out forwards}
+    @keyframes lb{from{width:0}to{width:100%}}
+    #loading p{font-family:'Sora',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,0,0,.3);margin-top:10px}
+
+    /* LEAFLET OVERRIDES */
+    .leaflet-control-zoom a{background:#fff!important;border:1px solid var(--border)!important;color:#4a6080!important;border-radius:8px!important;margin-bottom:3px!important;box-shadow:0 2px 6px rgba(0,0,0,.08)!important}
+    .leaflet-control-zoom{border:none!important}
+    .leaflet-popup-content-wrapper{background:#fff!important;border:1px solid var(--border)!important;border-radius:14px!important;box-shadow:0 4px 24px rgba(30,60,120,.10)!important;color:#0d1f35!important}
+    .leaflet-popup-tip{background:#fff!important}
+    .leaflet-tooltip{background:#fff!important;border:1px solid var(--border)!important;border-radius:8px!important;color:#0d1f35!important;font-size:11px!important;box-shadow:0 2px 8px rgba(30,60,120,.08)!important}
+    .leaflet-attribution-flag{display:none!important}
+    .leaflet-control-attribution{background:rgba(255,255,255,.9)!important;border-radius:8px 0 0 0!important;font-size:9px!important;color:#8a9bb0!important}
+    .leaflet-tile-pane{filter:saturate(.7) brightness(.98)}
+
+    /* STATUS TAG */
+    .tag-ok{background:rgba(34,196,116,.12);color:#166534;border-color:rgba(34,196,116,.3)}
+    .tag-warn{background:rgba(245,158,11,.12);color:#92400e;border-color:rgba(245,158,11,.3)}
+    .tag-danger{background:rgba(232,68,68,.12);color:#991b1b;border-color:rgba(232,68,68,.3)}
+    .tag-blue{background:rgba(26,127,212,.10);color:#1e40af;border-color:rgba(26,127,212,.28)}
+    .tag-purple{background:rgba(139,92,246,.10);color:#5b21b6;border-color:rgba(139,92,246,.28)}
+
+    /* PANEL TOGGLE (mobile drawer handle) */
+    .panel-drag{display:none}
+
+    /* MOBILE LAYOUT */
+    @media (max-width:760px){
+      #panel{
+        top:auto;left:8px;right:8px;bottom:8px;width:auto;
+        max-height:48px;transition:max-height .28s ease;border-radius:16px;
+      }
+      #panel.expanded{max-height:72vh}
+      .panel-drag{
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        height:48px;flex-shrink:0;cursor:pointer;font-size:11px;font-weight:700;
+        color:#4a6080;letter-spacing:.4px;text-transform:uppercase;
+      }
+      .panel-drag .bar{width:34px;height:4px;border-radius:3px;background:var(--border)}
+      .panel-header{display:none}
+      #tabs{flex-shrink:0}
+      #focus-info{
+        left:8px;right:8px;top:auto;bottom:64px;width:auto;
+        max-height:54vh;overflow-y:auto;
+      }
+      #legend-bar{
+        left:8px;right:8px;bottom:8px;transform:none;width:auto;
+        overflow-x:auto;justify-content:flex-start;padding:7px 12px;
+        -ms-overflow-style:none;scrollbar-width:none;
+      }
+      #legend-bar::-webkit-scrollbar{display:none}
+      body.panel-open #legend-bar{display:none}
+      #blank-badge{bottom:auto;top:62px;right:8px;font-size:10px;padding:6px 10px}
+      body.panel-open #blank-badge{display:none}
+      .leaflet-control-zoom{margin-bottom:60px!important}
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="load-logo"><img src="Logo/logo_sumenep-removebg-preview.png" alt="Logo" style="width:80px;height:auto"></div>
+  <p>Memuat Sistem Informasi</p>
+  <div class="load-bar"><div class="load-fill"></div></div>
+</div>
+
+<div id="topbar">
+  <div class="logo-crystal"><img src="Logo/logo-removebg-preview (1).png" alt="Logo" style="width:100%;height:100%;object-fit:contain"></div>
+  <div class="title-block">
+    <h1>WebGIS Aksesibilitas Fasilitas Kesehatan</h1>
+    <p>Kabupaten Sumenep · Teknik Geomatika ITS · 2025</p>
+  </div>
+  <nav class="main-nav">
+    <a class="nav-link" href="sumenepsehat.html">Beranda</a>
+    <a class="nav-link active" href="peta.html">Peta Faskes</a>
+    <a class="nav-link" href="dashboard.html#aksesibilitas">Aksesibilitas</a>
+    <a class="nav-link" href="sumenepsehat.html#map-preview">Tentang</a>
+  </nav>
+  <div class="topbar-right">
+    <div class="live-pill"><div class="live-dot"></div>LIVE</div>
+    <button class="menu-toggle" id="menu-toggle" aria-label="Menu">☰</button>
+  </div>
+  <div class="mobile-dropdown" id="mobile-dropdown">
+    <a class="nav-link" href="sumenepsehat.html">Beranda</a>
+    <a class="nav-link active" href="peta.html">Peta Faskes</a>
+    <a class="nav-link" href="dashboard.html#aksesibilitas">Aksesibilitas</a>
+    <a class="nav-link" href="sumenepsehat.html#map-preview">Tentang</a>
+  </div>
+</div>
+
+<div id="main">
+  <div id="map"></div>
+
+  <div id="panel">
+    <div class="panel-drag" id="panel-drag"><span class="bar"></span>Panel Analisis</div>
+    <div class="panel-header"><div class="panel-title">Analisis Aksesibilitas</div></div>
+
+    <div id="tabs">
+      <button class="tab active" data-tab="filter">Filter</button>
+      <button class="tab" data-tab="stats">Statistik</button>
+      <button class="tab" data-tab="list">Fasilitas</button>
+      <button class="tab" data-tab="routing">Routing</button>
+    </div>
+
+    <!-- FILTER -->
+    <div class="tab-body active" id="tab-filter">
+      <div class="search-wrap">
+        <input type="text" id="search-input" placeholder="Cari nama fasilitas…" />
+        <span class="search-icon">⌕</span>
+      </div>
+      <div class="sect">Tipe Fasilitas</div>
+      <label class="chk-row"><input type="checkbox" class="fac-type" value="puskesmas" checked><span class="dot-ind" style="background:#1a7fd4"></span>Puskesmas</label>
+      <label class="chk-row"><input type="checkbox" class="fac-type" value="pustu" checked><span class="dot-ind" style="background:#22c474"></span>Pustu</label>
+      <label class="chk-row"><input type="checkbox" class="fac-type" value="polindes" checked><span class="dot-ind" style="background:#f59e0b"></span>Polindes / Poskesdes</label>
+      <label class="chk-row"><input type="checkbox" class="fac-type" value="rs" checked><span class="dot-ind" style="background:#e84545"></span>Rumah Sakit / Klinik</label>
+      <div class="sect">Layer Analisis</div>
+      <label class="chk-row"><input type="checkbox" id="toggle-buffer" checked>Buffer Service Area</label>
+      <label class="chk-row"><input type="checkbox" id="toggle-blank">Blank Spot Zone</label>
+      <label class="chk-row"><input type="checkbox" id="toggle-kec" checked>Batas Kecamatan</label>
+      <div class="sect">Radius Buffer</div>
+      <input type="range" id="buffer-radius" min="1" max="5" step="0.5" value="3" />
+      <div class="range-labels"><span>1 km</span><span id="buf-val">3 km</span><span>5 km</span></div>
+      <div class="sect">Wilayah Kecamatan</div>
+      <select id="kec-select">
+        <option value="">— Semua Kecamatan —</option>
+        <option>Kota Sumenep</option><option>Kalianget</option><option>Talango</option>
+        <option>Lenteng</option><option>Bluto</option><option>Saronggi</option>
+        <option>Giligenting</option><option>Ambunten</option><option>Rubaru</option>
+        <option>Dasuk</option><option>Manding</option><option>Batang-Batang</option>
+        <option>Dungkek</option><option>Gapura</option><option>Gayam</option><option>Nonggunong</option>
+      </select>
+      <div class="sect">Status Operasional</div>
+      <select id="status-select">
+        <option value="">— Semua Status —</option>
+        <option value="aktif">Aktif</option>
+        <option value="terbatas">Terbatas</option>
+        <option value="renovasi">Renovasi</option>
+      </select>
+      <button class="btn btn-ghost" onclick="resetFilters()">↺ Reset Filter</button>
+      <button class="btn btn-primary" onclick="exportData()">↓ Export GeoJSON</button>
+    </div>
+
+    <!-- STATISTIK -->
+    <div class="tab-body" id="tab-stats">
+      <div class="sect">Ringkasan Kabupaten</div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="val">37</div><div class="lbl">Total Fasilitas</div><div class="sub">+4 dari 2023</div></div>
+        <div class="stat-card ok"><div class="val">68<span style="font-size:13px">%</span></div><div class="lbl">Populasi Terlayani</div><div class="sub bad">Gap 22% ke WHO</div></div>
+        <div class="stat-card danger"><div class="val">9</div><div class="lbl">Blank Spot</div><div class="sub bad">3 zona kritis</div></div>
+        <div class="stat-card warn"><div class="val sm">1:5.4k</div><div class="lbl">Rasio Faskes/Pddk</div><div class="sub warn">Standar: 1:2.5k</div></div>
+      </div>
+
+      <div class="sect">Coverage Populasi (radius 3 km)</div>
+      <div style="font-size:10px;color:#8a9bb0;margin-bottom:5px;display:flex;justify-content:space-between">
+        <span>Terlayani: <b style="color:#0d1f35">~748k jiwa</b></span>
+        <span>Total: ~1.1 juta</span>
+      </div>
+      <div class="cov-bar">
+        <div class="cov-fill" style="width:68%"></div>
+        <div class="cov-mark" style="left:90%"></div>
+      </div>
+      <div class="range-labels"><span>0%</span><span style="color:#f59e0b">Target WHO 90%</span><span>100%</span></div>
+
+      <div class="sect">Tenaga Medis</div>
+      <div class="stat-grid">
+        <div class="stat-card purple"><div class="val">248</div><div class="lbl">Total Nakes</div><div class="sub warn">Kurang 87 org</div></div>
+        <div class="stat-card"><div class="val">42</div><div class="lbl">Dokter Umum</div></div>
+        <div class="stat-card ok"><div class="val">89</div><div class="lbl">Bidan</div></div>
+        <div class="stat-card"><div class="val">117</div><div class="lbl">Perawat</div></div>
+      </div>
+
+      <div class="sect">Kapasitas Tempat Tidur</div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="val">240</div><div class="lbl">TT Tersedia</div></div>
+        <div class="stat-card warn"><div class="val">73<span style="font-size:13px">%</span></div><div class="lbl">BOR Rata-rata</div><div class="sub warn">RSUD: 85%</div></div>
+      </div>
+
+      <div class="sect">Fasilitas per Tipe</div>
+      <div class="chart-wrap xs"><canvas id="chart-donut"></canvas></div>
+
+      <div class="sect">Distribusi per Kecamatan (Top 8)</div>
+      <div class="chart-wrap"><canvas id="chart-kec"></canvas></div>
+
+      <div class="sect">Aksesibilitas per Kecamatan</div>
+      <div id="kec-access-bars"></div>
+
+      <div class="sect">Klasifikasi Aksesibilitas</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#22c474"></div><span>Sangat Baik — &lt;1 km · ≤5 menit</span></div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#f59e0b"></div><span>Cukup — 1–2 km · 5–10 menit</span></div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#e84545"></div><span>Kurang — 2–3 km · 10–20 menit</span></div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#7a1f1f"></div><span>Kritis / Blank Spot — &gt;3 km</span></div>
+    </div>
+
+    <!-- FASILITAS -->
+    <div class="tab-body" id="tab-list">
+      <div class="sect">Fasilitas Terdaftar (<span id="fac-count">37</span>)</div>
+      <div id="facility-list"></div>
+    </div>
+
+    <!-- ROUTING -->
+    <div class="tab-body" id="tab-routing">
+      <div class="sect">Routing Terdekat</div>
+      <p style="font-size:11px;color:#8a9bb0;margin-bottom:12px;line-height:1.7">Klik posisi Anda di peta untuk menemukan fasilitas terdekat dan estimasi waktu tempuh.</p>
+      <button class="btn btn-primary" id="btn-routing" onclick="activateRouting()">📍 Aktifkan Mode Routing</button>
+      <button class="btn btn-ghost" id="btn-clear-route" onclick="clearRoute()" style="display:none">✕ Hapus Rute</button>
+      <div id="route-result" style="display:none">
+        <div class="sect" style="margin-top:14px">Hasil Routing</div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="val" id="r-dist">—</div><div class="lbl">Jarak (km)</div></div>
+          <div class="stat-card ok"><div class="val" id="r-time">—</div><div class="lbl">Waktu (mnt)</div></div>
+        </div>
+        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:6px">
+          <div style="font-size:10px;color:#8a9bb0;margin-bottom:4px">FASKES TERDEKAT</div>
+          <div id="r-name" style="font-size:13px;font-weight:700;color:#1a7fd4"></div>
+          <div id="r-type" style="font-size:10.5px;color:#8a9bb0;margin-top:2px"></div>
+          <div id="r-layanan" style="font-size:10.5px;color:#4a6080;margin-top:4px"></div>
+          <div id="r-jam" style="font-size:10.5px;color:#4a6080;margin-top:2px"></div>
+        </div>
+      </div>
+      <div class="sect" style="margin-top:16px">Asumsi Kecepatan</div>
+      <div style="font-size:11px;color:#8a9bb0;line-height:1.9">Jalan primer: 60 km/h · Sekunder: 40 km/h<br>Lokal: 20 km/h · Faktor tortuositas: ×1.3</div>
+    </div>
+  </div>
+
+  <!-- FOCUS POPUP -->
+  <div id="focus-info">
+    <button class="fi-close" onclick="clearFocus()">✕</button>
+    <div id="fi-badge" class="fi-type-badge"></div>
+    <div class="fi-name" id="fi-name"></div>
+    <div class="fi-kec" id="fi-kec"></div>
+    <div class="fi-grid" id="fi-metrics"></div>
+    <div class="fi-divider"></div>
+    <div class="fi-row"><b>Layanan:</b><span id="fi-layanan"></span></div>
+    <div class="fi-row"><b>Jam Buka:</b><span id="fi-jam"></span></div>
+    <div class="fi-row" id="fi-dokter-row"><b>Dokter:</b><span id="fi-dokter"></span></div>
+    <div class="fi-row" id="fi-bidan-row"><b>Bidan:</b><span id="fi-bidan"></span></div>
+    <div class="fi-row" id="fi-bed-row"><b>Kapasitas TT:</b><span id="fi-bed"></span></div>
+    <div class="fi-row" id="fi-bpjs-row"><b>BPJS:</b><span id="fi-bpjs"></span></div>
+    <div class="fi-chip-row" id="fi-chips"></div>
+    <div class="fi-divider"></div>
+    <div style="display:flex;gap:6px;margin-top:4px">
+      <button style="flex:1;padding:7px;border-radius:8px;background:#1a7fd4;color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif" onclick="routeFromFocused()">🗺 Rute ke Sini</button>
+      <button onclick="zoomToFocused()" style="flex:1;padding:7px;border-radius:8px;background:#f0f4f8;color:#4a6080;border:none;font-size:11px;cursor:pointer;font-family:Inter,sans-serif">🔍 Zoom</button>
+    </div>
+  </div>
+
+  <div id="legend-bar">
+    <div class="lb-item"><div class="lb-dot" style="background:#1a7fd4"></div>Puskesmas</div>
+    <div class="lb-divider"></div>
+    <div class="lb-item"><div class="lb-dot" style="background:#22c474"></div>Pustu</div>
+    <div class="lb-divider"></div>
+    <div class="lb-item"><div class="lb-dot" style="background:#f59e0b"></div>Polindes</div>
+    <div class="lb-divider"></div>
+    <div class="lb-item"><div class="lb-dot" style="background:#e84545"></div>RS/Klinik</div>
+    <div class="lb-divider"></div>
+    <div class="lb-item"><div style="width:20px;height:3px;border:1px dashed #e84545;background:rgba(232,68,68,.10)"></div>Blank Spot</div>
+    <div class="lb-divider"></div>
+    <div class="lb-item"><div style="width:20px;height:3px;border:1.5px solid rgba(26,127,212,.5)"></div>Batas Kec.</div>
+  </div>
+
+  <div id="blank-badge"><div class="bb-pulse"></div>9 Blank Spot Terdeteksi</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+/* ═══════════════════════════ DATA ═══════════════════════════ */
+const FACILITIES = [
+  // ── PUSKESMAS ──
+  { id:1,  name:"Puskesmas Kota Sumenep",  type:"puskesmas", kec:"Kota Sumenep",  lat:-7.0153,lng:113.8620,
+    layanan:"Rawat Inap, UGD, BPJS", jam:"24 Jam", dokter:4, bidan:8, perawat:12, bed:10,
+    bpjs:true, status:"aktif", akreditasi:"Paripurna",
+    fasilitas:["Laboratorium","Radiologi","Apotek","Ambulans","IGD"],
+    wilayahKerja:"6 desa / 4 kelurahan", pendudukSasaran:52400 },
+
+  { id:2,  name:"Puskesmas Kalianget",     type:"puskesmas", kec:"Kalianget",     lat:-7.0530,lng:113.9460,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:2, bidan:5, perawat:7, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Madya",
+    fasilitas:["Laboratorium","Apotek","KIA"],
+    wilayahKerja:"5 desa", pendudukSasaran:31200 },
+
+  { id:3,  name:"Puskesmas Lenteng",       type:"puskesmas", kec:"Lenteng",       lat:-7.0790,lng:113.7940,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:2, bidan:6, perawat:8, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Madya",
+    fasilitas:["Apotek","KIA","Imunisasi"],
+    wilayahKerja:"7 desa", pendudukSasaran:38700 },
+
+  { id:4,  name:"Puskesmas Bluto",         type:"puskesmas", kec:"Bluto",         lat:-7.1100,lng:113.8320,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:2, bidan:5, perawat:6, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Dasar",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"8 desa", pendudukSasaran:42100 },
+
+  { id:5,  name:"Puskesmas Saronggi",      type:"puskesmas", kec:"Saronggi",      lat:-7.0350,lng:113.9040,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:2, bidan:4, perawat:6, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Dasar",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"4 desa", pendudukSasaran:22800 },
+
+  { id:6,  name:"Puskesmas Ambunten",      type:"puskesmas", kec:"Ambunten",      lat:-6.9510,lng:113.7440,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:2, bidan:5, perawat:7, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Madya",
+    fasilitas:["Apotek","KIA","Imunisasi"],
+    wilayahKerja:"6 desa", pendudukSasaran:29500 },
+
+  { id:7,  name:"Puskesmas Rubaru",        type:"puskesmas", kec:"Rubaru",        lat:-6.9870,lng:113.7650,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:2, bidan:4, perawat:5, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Dasar",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"5 desa", pendudukSasaran:26100 },
+
+  { id:8,  name:"Puskesmas Dasuk",         type:"puskesmas", kec:"Dasuk",         lat:-6.9640,lng:113.8100,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:1, bidan:3, perawat:5, bed:0,
+    bpjs:true, status:"terbatas", akreditasi:"Dasar",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"4 desa", pendudukSasaran:18900 },
+
+  { id:9,  name:"Puskesmas Manding",       type:"puskesmas", kec:"Manding",       lat:-6.9900,lng:113.8800,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:2, bidan:4, perawat:6, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Madya",
+    fasilitas:["Apotek","KIA","Laboratorium"],
+    wilayahKerja:"5 desa", pendudukSasaran:24700 },
+
+  { id:10, name:"Puskesmas Batang-Batang", type:"puskesmas", kec:"Batang-Batang", lat:-6.9360,lng:113.9200,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:2, bidan:5, perawat:6, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Dasar",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"6 desa", pendudukSasaran:31400 },
+
+  { id:11, name:"Puskesmas Dungkek",       type:"puskesmas", kec:"Dungkek",       lat:-7.0000,lng:113.9720,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:1, bidan:3, perawat:4, bed:0,
+    bpjs:true, status:"terbatas", akreditasi:"Dasar",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"4 desa", pendudukSasaran:19300 },
+
+  { id:12, name:"Puskesmas Gapura",        type:"puskesmas", kec:"Gapura",        lat:-7.0260,lng:113.9900,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:2, bidan:4, perawat:5, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Dasar",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"5 desa", pendudukSasaran:27800 },
+
+  { id:13, name:"Puskesmas Talango",       type:"puskesmas", kec:"Talango",       lat:-7.0700,lng:113.9350,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:1, bidan:3, perawat:4, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Dasar",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"5 desa / kepulauan", pendudukSasaran:22100 },
+
+  { id:14, name:"Puskesmas Giligenting",   type:"puskesmas", kec:"Giligenting",   lat:-7.1100,lng:113.9600,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:1, bidan:3, perawat:4, bed:0,
+    bpjs:true, status:"renovasi", akreditasi:"Belum",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"4 desa / kepulauan", pendudukSasaran:16200 },
+
+  { id:15, name:"Puskesmas Gayam",         type:"puskesmas", kec:"Gayam",         lat:-5.7800,lng:114.4200,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:1, bidan:3, perawat:4, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Dasar",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"6 desa / Pulau Sapudi", pendudukSasaran:28900 },
+
+  // ── PUSTU ──
+  { id:16, name:"Pustu Pamolokan",         type:"pustu", kec:"Kota Sumenep",  lat:-7.0080,lng:113.8720,
+    layanan:"Rawat Jalan Dasar", jam:"07.00–13.00", dokter:0, bidan:2, perawat:2, bed:0,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Pemeriksaan Umum","Imunisasi"],
+    wilayahKerja:"2 kelurahan", pendudukSasaran:8400 },
+
+  { id:17, name:"Pustu Kebonagung",        type:"pustu", kec:"Kota Sumenep",  lat:-7.0230,lng:113.8520,
+    layanan:"Rawat Jalan Dasar", jam:"07.00–13.00", dokter:0, bidan:1, perawat:2, bed:0,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Pemeriksaan Umum"],
+    wilayahKerja:"2 desa", pendudukSasaran:6700 },
+
+  { id:18, name:"Pustu Parsanga",          type:"pustu", kec:"Manding",       lat:-7.0030,lng:113.8700,
+    layanan:"Rawat Jalan Dasar", jam:"07.00–13.00", dokter:0, bidan:1, perawat:1, bed:0,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Pemeriksaan Umum","KIA"],
+    wilayahKerja:"2 desa", pendudukSasaran:5200 },
+
+  { id:19, name:"Pustu Bungbungan",        type:"pustu", kec:"Bluto",         lat:-7.1050,lng:113.8420,
+    layanan:"Rawat Jalan Dasar", jam:"07.00–13.00", dokter:0, bidan:1, perawat:1, bed:0,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Pemeriksaan Umum"],
+    wilayahKerja:"2 desa", pendudukSasaran:7100 },
+
+  { id:20, name:"Pustu Marengan",          type:"pustu", kec:"Kalianget",     lat:-7.0440,lng:113.9380,
+    layanan:"Rawat Jalan Dasar", jam:"07.00–13.00", dokter:0, bidan:1, perawat:2, bed:0,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Pemeriksaan Umum","KIA"],
+    wilayahKerja:"2 desa", pendudukSasaran:6300 },
+
+  { id:21, name:"Pustu Tanjung",           type:"pustu", kec:"Saronggi",      lat:-7.0420,lng:113.9120,
+    layanan:"Rawat Jalan Dasar", jam:"07.00–13.00", dokter:0, bidan:1, perawat:1, bed:0,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Pemeriksaan Umum"],
+    wilayahKerja:"2 desa", pendudukSasaran:4800 },
+
+  { id:22, name:"Pustu Batukerbuy",        type:"pustu", kec:"Ambunten",      lat:-6.9450,lng:113.7300,
+    layanan:"Rawat Jalan Dasar", jam:"07.00–13.00", dokter:0, bidan:1, perawat:1, bed:0,
+    bpjs:false, status:"terbatas", akreditasi:"-",
+    fasilitas:["Pemeriksaan Umum"],
+    wilayahKerja:"2 desa", pendudukSasaran:5600 },
+
+  { id:23, name:"Pustu Pakamban Laok",     type:"pustu", kec:"Dasuk",         lat:-6.9560,lng:113.8220,
+    layanan:"Rawat Jalan Dasar", jam:"07.00–13.00", dokter:0, bidan:1, perawat:1, bed:0,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Pemeriksaan Umum"],
+    wilayahKerja:"2 desa", pendudukSasaran:4300 },
+
+  { id:35, name:"Pustu Sapudi",            type:"pustu", kec:"Gayam",         lat:-5.8200,lng:114.3900,
+    layanan:"Rawat Jalan Dasar", jam:"07.00–12.00", dokter:0, bidan:1, perawat:1, bed:0,
+    bpjs:false, status:"terbatas", akreditasi:"-",
+    fasilitas:["Pemeriksaan Umum"],
+    wilayahKerja:"3 desa / kepulauan", pendudukSasaran:7800 },
+
+  // ── POLINDES ──
+  { id:24, name:"Polindes Kepanjin",       type:"polindes", kec:"Kota Sumenep",  lat:-7.0200,lng:113.8650,
+    layanan:"KIA, Persalinan Normal", jam:"06.00–14.00", dokter:0, bidan:2, perawat:0, bed:2,
+    bpjs:true, status:"aktif", akreditasi:"-",
+    fasilitas:["Persalinan","ANC","KB"],
+    wilayahKerja:"1 kelurahan", pendudukSasaran:4100 },
+
+  { id:25, name:"Polindes Duko",           type:"polindes", kec:"Rubaru",        lat:-6.9800,lng:113.7700,
+    layanan:"KIA, Persalinan Normal", jam:"06.00–14.00", dokter:0, bidan:1, perawat:0, bed:1,
+    bpjs:true, status:"aktif", akreditasi:"-",
+    fasilitas:["Persalinan","ANC"],
+    wilayahKerja:"1 desa", pendudukSasaran:3200 },
+
+  { id:26, name:"Polindes Lenteng Timur",  type:"polindes", kec:"Lenteng",       lat:-7.0820,lng:113.8020,
+    layanan:"KIA, Persalinan Normal", jam:"06.00–14.00", dokter:0, bidan:1, perawat:0, bed:1,
+    bpjs:true, status:"aktif", akreditasi:"-",
+    fasilitas:["Persalinan","ANC","KB"],
+    wilayahKerja:"1 desa", pendudukSasaran:3700 },
+
+  { id:27, name:"Polindes Sumedangan",     type:"polindes", kec:"Gapura",        lat:-7.0300,lng:113.9960,
+    layanan:"KIA, Persalinan Normal", jam:"06.00–14.00", dokter:0, bidan:1, perawat:0, bed:1,
+    bpjs:true, status:"aktif", akreditasi:"-",
+    fasilitas:["Persalinan","ANC"],
+    wilayahKerja:"1 desa", pendudukSasaran:2900 },
+
+  { id:28, name:"Polindes Pordapor",       type:"polindes", kec:"Bluto",         lat:-7.1180,lng:113.8250,
+    layanan:"KIA, Persalinan Normal", jam:"06.00–14.00", dokter:0, bidan:1, perawat:0, bed:1,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Persalinan","ANC"],
+    wilayahKerja:"1 desa", pendudukSasaran:3100 },
+
+  { id:29, name:"Polindes Lobuk",          type:"polindes", kec:"Bluto",         lat:-7.1050,lng:113.8180,
+    layanan:"KIA, Persalinan Normal", jam:"06.00–14.00", dokter:0, bidan:1, perawat:0, bed:1,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Persalinan","ANC"],
+    wilayahKerja:"1 desa", pendudukSasaran:2800 },
+
+  { id:30, name:"Polindes Bukabu",         type:"polindes", kec:"Ambunten",      lat:-6.9470,lng:113.7500,
+    layanan:"KIA, Persalinan Normal", jam:"06.00–14.00", dokter:0, bidan:1, perawat:0, bed:1,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Persalinan","ANC"],
+    wilayahKerja:"1 desa", pendudukSasaran:2600 },
+
+  { id:36, name:"Polindes Nonggunong",     type:"polindes", kec:"Nonggunong",    lat:-5.8500,lng:114.3500,
+    layanan:"KIA, Persalinan Normal", jam:"06.00–14.00", dokter:0, bidan:1, perawat:0, bed:1,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Persalinan","ANC"],
+    wilayahKerja:"2 desa / kepulauan", pendudukSasaran:3400 },
+
+  // ── RS / KLINIK ──
+  { id:31, name:"RSUD dr. H. Moh. Anwar", type:"rs", kec:"Kota Sumenep",  lat:-7.0160,lng:113.8590,
+    layanan:"UGD 24 Jam, Rawat Inap, Bedah, Spesialis", jam:"24 Jam", dokter:18, bidan:12, perawat:46, bed:180,
+    bpjs:true, status:"aktif", akreditasi:"Paripurna",
+    fasilitas:["ICU","NICU","Radiologi","MRI","CT-Scan","Laboratorium","Apotek","Hemodialisis","Bank Darah"],
+    wilayahKerja:"Rujukan Kabupaten", pendudukSasaran:1100000 },
+
+  { id:32, name:"RS Yasmin Sumenep",       type:"rs", kec:"Kota Sumenep",  lat:-7.0190,lng:113.8610,
+    layanan:"Rawat Inap, Bedah, Spesialis", jam:"24 Jam", dokter:8, bidan:6, perawat:22, bed:60,
+    bpjs:true, status:"aktif", akreditasi:"Utama",
+    fasilitas:["ICU","Radiologi","Laboratorium","Apotek","Fisioterapi"],
+    wilayahKerja:"RS Swasta Utama", pendudukSasaran:0 },
+
+  { id:33, name:"Klinik Pratama Khadijah", type:"rs", kec:"Kota Sumenep",  lat:-7.0140,lng:113.8640,
+    layanan:"Rawat Jalan, Spesialis", jam:"08.00–20.00", dokter:3, bidan:2, perawat:5, bed:6,
+    bpjs:true, status:"aktif", akreditasi:"-",
+    fasilitas:["Apotek","Laboratorium","USG"],
+    wilayahKerja:"Klinik Pratama", pendudukSasaran:0 },
+
+  { id:34, name:"Klinik dr. Suharto",      type:"rs", kec:"Kalianget",     lat:-7.0510,lng:113.9430,
+    layanan:"Rawat Jalan Umum", jam:"08.00–16.00", dokter:2, bidan:1, perawat:3, bed:0,
+    bpjs:false, status:"aktif", akreditasi:"-",
+    fasilitas:["Apotek"],
+    wilayahKerja:"Klinik Swasta", pendudukSasaran:0 },
+
+  { id:37, name:"Puskesmas Nonggunong",    type:"puskesmas", kec:"Nonggunong",    lat:-5.8400,lng:114.3400,
+    layanan:"Rawat Jalan, BPJS", jam:"07.00–14.00", dokter:1, bidan:3, perawat:4, bed:0,
+    bpjs:true, status:"aktif", akreditasi:"Dasar",
+    fasilitas:["Apotek","KIA"],
+    wilayahKerja:"5 desa / kepulauan", pendudukSasaran:18700 },
+];
+
+// Aksesibilitas per kecamatan (skor 0–100)
+const KEC_ACCESS = [
+  { name:"Kota Sumenep", skor:92, pddk:52400 },
+  { name:"Kalianget",    skor:78, pddk:31200 },
+  { name:"Lenteng",      skor:61, pddk:38700 },
+  { name:"Bluto",        skor:55, pddk:42100 },
+  { name:"Saronggi",     skor:70, pddk:22800 },
+  { name:"Ambunten",     skor:58, pddk:29500 },
+  { name:"Rubaru",       skor:63, pddk:26100 },
+  { name:"Dasuk",        skor:49, pddk:18900 },
+  { name:"Manding",      skor:72, pddk:24700 },
+  { name:"Batang-Batang",skor:54, pddk:31400 },
+  { name:"Dungkek",      skor:42, pddk:19300 },
+  { name:"Gapura",       skor:60, pddk:27800 },
+  { name:"Talango",      skor:45, pddk:22100 },
+  { name:"Giligenting",  skor:38, pddk:16200 },
+  { name:"Gayam",        skor:35, pddk:28900 },
+  { name:"Nonggunong",   skor:32, pddk:18700 },
+];
+
+const BLANK_SPOTS = [
+  { name:"Zona Kritis — Barat Lenteng",   coords:[[-7.075,113.760],[-7.095,113.760],[-7.095,113.780],[-7.075,113.780]] },
+  { name:"Zona Kritis — Kepulauan Raas",  coords:[[-5.840,114.440],[-5.890,114.440],[-5.890,114.490],[-5.840,114.490]] },
+  { name:"Zona Kritis — Timur Gapura",    coords:[[-7.040,114.010],[-7.060,114.010],[-7.060,114.040],[-7.040,114.040]] },
+];
+
+const KECAMATAN_ADM = [
+  { name:"Kota Sumenep",  color:"#1a7fd4", coords:[[-7.008,113.843],[-7.008,113.875],[-7.038,113.875],[-7.038,113.843]] },
+  { name:"Kalianget",     color:"#0ec4a0", coords:[[-7.038,113.880],[-7.038,113.960],[-7.065,113.960],[-7.065,113.880]] },
+  { name:"Saronggi",      color:"#8b5cf6", coords:[[-7.022,113.875],[-7.022,113.945],[-7.045,113.945],[-7.045,113.875]] },
+  { name:"Manding",       color:"#f59e0b", coords:[[-6.975,113.845],[-6.975,113.900],[-7.010,113.900],[-7.010,113.845]] },
+  { name:"Talango",       color:"#e84545", coords:[[-7.055,113.895],[-7.055,113.965],[-7.090,113.965],[-7.090,113.895]] },
+  { name:"Giligenting",   color:"#06b6d4", coords:[[-7.090,113.935],[-7.090,113.980],[-7.125,113.980],[-7.125,113.935]] },
+  { name:"Lenteng",       color:"#22c474", coords:[[-7.065,113.765],[-7.065,113.820],[-7.100,113.820],[-7.100,113.765]] },
+  { name:"Bluto",         color:"#ef4444", coords:[[-7.085,113.800],[-7.085,113.860],[-7.135,113.860],[-7.135,113.800]] },
+  { name:"Gapura",        color:"#7c3aed", coords:[[-7.010,113.960],[-7.010,114.020],[-7.055,114.020],[-7.055,113.960]] },
+  { name:"Dungkek",       color:"#d97706", coords:[[-6.980,113.945],[-6.980,114.000],[-7.015,114.000],[-7.015,113.945]] },
+  { name:"Batang-Batang", color:"#dc2626", coords:[[-6.910,113.890],[-6.910,113.960],[-6.960,113.960],[-6.960,113.890]] },
+  { name:"Dasuk",         color:"#059669", coords:[[-6.940,113.785],[-6.940,113.845],[-6.980,113.845],[-6.980,113.785]] },
+  { name:"Rubaru",        color:"#2563eb", coords:[[-6.965,113.745],[-6.965,113.788],[-7.010,113.788],[-7.010,113.745]] },
+  { name:"Ambunten",      color:"#db2777", coords:[[-6.930,113.715],[-6.930,113.760],[-6.965,113.760],[-6.965,113.715]] },
+];
+
+const DOT_COLORS = { puskesmas:"#1a7fd4", pustu:"#22c474", polindes:"#f59e0b", rs:"#e84545" };
+const DOT_SIZES  = { puskesmas:14, pustu:11, polindes:11, rs:13 };
+const TYPE_LABELS = { puskesmas:"Puskesmas", pustu:"Pustu", polindes:"Polindes", rs:"RS / Klinik" };
+const STATUS_COLOR = { aktif:"tag-ok", terbatas:"tag-warn", renovasi:"tag-danger" };
+const AKRED_COLOR  = { "Paripurna":"tag-blue","Utama":"tag-blue","Madya":"tag-purple","Dasar":"tag-ok","-":"","Belum":"tag-danger" };
+
+/* ═══════════════════════════ STATE ═══════════════════════════ */
+let map, bufferLayer, blankLayer, kecLayer, markerLayer, routeLayer, userMarker;
+let routingActive = false;
+let activeFilters = { puskesmas:true, pustu:true, polindes:true, rs:true };
+let bufferRadius = 3;
+let focusedId = null;
+let activeStatusFilter = "";
+let focusedFacility = null;
+
+/* ═══════════════════════════ ICONS ═══════════════════════════ */
+function makeCircleIcon(type, focused, dimmed) {
+  const c = DOT_COLORS[type], s = DOT_SIZES[type];
+  const border = type === 'rs' ? 2.5 : 2;
+  const opacity = dimmed ? 0.14 : 1;
+  const sz = focused ? Math.round(s * 1.45) : s;
+  const ring = focused ? `box-shadow:0 0 0 5px ${c}33,0 2px 8px rgba(0,0,0,.18);` : '0 1px 4px rgba(0,0,0,.15)';
+  return L.divIcon({
+    className:"",
+    html:`<div style="width:${sz}px;height:${sz}px;background:${c};border-radius:50%;border:${border}px solid rgba(255,255,255,0.96);opacity:${opacity};box-shadow:${ring};transition:all .2s"></div>`,
+    iconSize:[sz,sz], iconAnchor:[sz/2,sz/2], popupAnchor:[0,-(sz/2+4)],
+  });
+}
+
+/* ═══════════════════════════ MAP ═══════════════════════════ */
+function initMap() {
+  map = L.map("map", { zoomControl:false }).setView([-7.0200,113.8620],11);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    { attribution:"© OpenStreetMap contributors", maxZoom:18 }).addTo(map);
+  L.control.zoom({ position:"bottomright" }).addTo(map);
+
+  bufferLayer = L.layerGroup().addTo(map);
+  blankLayer  = L.layerGroup();
+  kecLayer    = L.layerGroup().addTo(map);
+  markerLayer = L.layerGroup().addTo(map);
+  routeLayer  = L.layerGroup().addTo(map);
+
+  renderKecamatan();
+  loadAdministrativeBoundaries();
+  renderMarkers();
+  renderBuffers();
+  renderBlankSpots();
+
+  map.on("click", onMapClick);
+}
+
+function getFiltered() {
+  const search = document.getElementById("search-input").value.toLowerCase();
+  const kecSel = document.getElementById("kec-select").value;
+  return FACILITIES.filter(f => {
+    if (!activeFilters[f.type]) return false;
+    if (kecSel && f.kec !== kecSel) return false;
+    if (search && !f.name.toLowerCase().includes(search)) return false;
+    if (activeStatusFilter && f.status !== activeStatusFilter) return false;
+    return true;
+  });
+}
+
+function renderMarkers() {
+  markerLayer.clearLayers();
+  getFiltered().forEach(f => {
+    const dimmed  = focusedId !== null && focusedId !== f.id;
+    const focused = focusedId === f.id;
+    const m = L.marker([f.lat,f.lng], { icon: makeCircleIcon(f.type,focused,dimmed) });
+    m.bindTooltip(`<b>${f.name}</b><br><span style="color:#8a9bb0;font-size:10px">${f.kec}</span>`, { direction:"top", offset:[0,-8] });
+    m.on("click", e => { L.DomEvent.stopPropagation(e); onFacilityClick(f); });
+    markerLayer.addLayer(m);
+  });
+  document.getElementById("fac-count").textContent = markerLayer.getLayers().length;
+}
+
+function renderBuffers() {
+  bufferLayer.clearLayers();
+  if (!document.getElementById("toggle-buffer").checked) return;
+  const kecSel = document.getElementById("kec-select").value;
+  FACILITIES.forEach(f => {
+    if (!activeFilters[f.type]) return;
+    if (kecSel && f.kec !== kecSel) return;
+    const focused = focusedId === f.id;
+    const dimmed  = focusedId !== null && !focused;
+    const c = DOT_COLORS[f.type];
+    [bufferRadius, bufferRadius*0.66, bufferRadius*0.33].forEach((r,i) => {
+      const base = [0.07,0.05,0.04][i];
+      L.circle([f.lat,f.lng], {
+        radius: r*1000,
+        color:c, weight: focused&&i===0 ? 1.5 : 0.7,
+        fillColor:c, fillOpacity: dimmed ? 0.01 : (focused ? base*2.8 : base),
+        opacity: dimmed ? 0.04 : (focused ? 0.65 : 0.28)
+      }).addTo(bufferLayer);
+    });
+  });
+}
+
+function renderBlankSpots() {
+  blankLayer.clearLayers();
+  BLANK_SPOTS.forEach(z => {
+    L.polygon(z.coords,{color:"#e84545",weight:1.5,dashArray:"6 4",fillColor:"#e84545",fillOpacity:.10})
+      .bindTooltip("⚠ "+z.name,{sticky:true}).addTo(blankLayer);
+  });
+}
+
+function renderKecamatan() {
+  kecLayer.clearLayers();
+  KECAMATAN_ADM.forEach(k => {
+    L.polygon(k.coords,{color:k.color,weight:1.5,dashArray:"5 4",fill:true,fillColor:k.color,fillOpacity:.04,opacity:.55})
+      .bindTooltip(k.name,{sticky:false,direction:"center"}).addTo(kecLayer);
+  });
+}
+
+function loadAdministrativeBoundaries() {
+  fetch("KabupatenSumenep.geojson")
+    .then(response => response.json())
+    .then(geojson => {
+      const admLayer = L.geoJSON(geojson, {
+        style: function(feature) {
+          return {
+            color: "#1a7fd4",
+            weight: 1.2,
+            opacity: 0.3,
+            fill: true,
+            fillColor: "#1a7fd4",
+            fillOpacity: 0.02
+          };
+        },
+        onEachFeature: function(feature, layer) {
+          const props = feature.properties;
+          const popupContent = `
+            <div style="font-size:12px">
+              <b>${props.Kecamatan || props.NAME_3 || "Kecamatan"}</b><br>
+              ${props.Jumlah_Pen ? `<span style="color:#8a9bb0">Populasi: ${props.Jumlah_Pen}k jiwa</span><br>` : ""}
+              ${props.Kepadatan ? `<span style="color:#8a9bb0">Kepadatan: ${props.Kepadatan}/km²</span>` : ""}
+            </div>
+          `;
+          layer.bindPopup(popupContent);
+        }
+      }).addTo(map);
+    })
+    .catch(error => console.log("GeoJSON loading error:", error));
+}
+
+function onFacilityClick(f) {
+  if (routingActive) return;
+  focusedId = f.id;
+  focusedFacility = f;
+  renderMarkers();
+  renderBuffers();
+  showFocusPanel(f);
+}
+
+function showFocusPanel(f) {
+  const c = DOT_COLORS[f.type];
+  // badge
+  const badge = document.getElementById("fi-badge");
+  badge.textContent = TYPE_LABELS[f.type];
+  badge.style.background = c+"1a";
+  badge.style.color = c;
+  badge.style.border = "1px solid "+c+"44";
+
+  document.getElementById("fi-name").textContent = f.name;
+  document.getElementById("fi-kec").textContent = f.kec + " · " + (f.wilayahKerja||"");
+
+  // metrics grid
+  const metrics = document.getElementById("fi-metrics");
+  const metItems = [
+    { v: f.dokter||0, l:"Dokter" },
+    { v: f.bidan||0,  l:"Bidan" },
+    { v: f.perawat||0,l:"Perawat" },
+    { v: f.bed||0,    l:"TT" },
+  ];
+  // only show metrics with value or for hospitals
+  const showAll = f.type === "rs" || f.type === "puskesmas";
+  const mToShow = showAll ? metItems : metItems.filter(m=>m.v>0);
+  metrics.innerHTML = mToShow.map(m=>`
+    <div class="fi-metric">
+      <div class="mv">${m.v||"—"}</div>
+      <div class="ml">${m.l}</div>
+    </div>`).join("");
+
+  document.getElementById("fi-layanan").textContent = f.layanan;
+  document.getElementById("fi-jam").textContent = f.jam;
+
+  const dRow = document.getElementById("fi-dokter-row");
+  dRow.style.display = (f.type==="puskesmas"||f.type==="rs") ? "flex" : "none";
+
+  const bidRow = document.getElementById("fi-bidan-row");
+  bidRow.style.display = f.bidan > 0 ? "flex" : "none";
+  document.getElementById("fi-bidan").textContent = f.bidan + " orang";
+
+  const bedRow = document.getElementById("fi-bed-row");
+  bedRow.style.display = f.bed > 0 ? "flex" : "none";
+  document.getElementById("fi-bed").textContent = f.bed + " tempat tidur";
+
+  document.getElementById("fi-dokter").textContent = (f.dokter||0) + " orang";
+
+  const bpjsRow = document.getElementById("fi-bpjs-row");
+  bpjsRow.style.display = "flex";
+  document.getElementById("fi-bpjs").textContent = f.bpjs ? "Melayani BPJS" : "Tidak menerima BPJS";
+  document.getElementById("fi-bpjs").style.color = f.bpjs ? "#166534" : "#991b1b";
+
+  // chips
+  const chips = document.getElementById("fi-chips");
+  const chipData = [];
+  if (f.status) chipData.push({ l:f.status.charAt(0).toUpperCase()+f.status.slice(1), cls:STATUS_COLOR[f.status]||"tag-blue" });
+  if (f.akreditasi && f.akreditasi!=="-") chipData.push({ l:"Akred: "+f.akreditasi, cls:AKRED_COLOR[f.akreditasi]||"tag-blue" });
+  if (f.fasilitas) f.fasilitas.slice(0,3).forEach(fsl=>chipData.push({l:fsl,cls:"tag-blue"}));
+  chips.innerHTML = chipData.map(ch=>`<span class="fi-chip ${ch.cls}">${ch.l}</span>`).join("");
+
+  document.getElementById("focus-info").style.display = "block";
+}
+
+function clearFocus() {
+  focusedId = null;
+  focusedFacility = null;
+  renderMarkers();
+  renderBuffers();
+  document.getElementById("focus-info").style.display = "none";
+}
+
+function zoomToFocused() {
+  if (focusedFacility) map.setView([focusedFacility.lat,focusedFacility.lng],15);
+}
+
+function routeFromFocused() {
+  clearFocus();
+  switchTab("routing");
+  setTimeout(activateRouting,100);
+}
+
+/* ═══════════════════════════ ROUTING ═══════════════════════════ */
+function activateRouting() {
+  routingActive = true;
+  clearFocus();
+  const btn = document.getElementById("btn-routing");
+  btn.textContent = "🖱 Klik posisi Anda di peta…";
+  btn.style.background = "linear-gradient(135deg,#f59e0b,#f97316)";
+  map.getContainer().style.cursor = "crosshair";
+}
+
+function clearRoute() {
+  routingActive = false;
+  routeLayer.clearLayers();
+  if (userMarker) { map.removeLayer(userMarker); userMarker=null; }
+  const btn = document.getElementById("btn-routing");
+  btn.textContent = "📍 Aktifkan Mode Routing";
+  btn.style.background = "";
+  document.getElementById("btn-clear-route").style.display = "none";
+  document.getElementById("route-result").style.display = "none";
+  map.getContainer().style.cursor = "";
+}
+
+function onMapClick(e) {
+  if (!routingActive) { clearFocus(); return; }
+  const {lat,lng} = e.latlng;
+  if (userMarker) map.removeLayer(userMarker);
+  userMarker = L.marker([lat,lng],{
+    icon:L.divIcon({className:"",
+      html:`<div style="width:18px;height:18px;background:#1a7fd4;border-radius:50%;border:3px solid #fff;box-shadow:0 0 10px rgba(26,127,212,.4)"></div>`,
+      iconSize:[18,18],iconAnchor:[9,9]})
+  }).addTo(map).bindTooltip("Posisi Anda").openTooltip();
+
+  let nearest=null, minDist=Infinity;
+  FACILITIES.forEach(f => {
+    if (!activeFilters[f.type]) return;
+    const d = haversine(lat,lng,f.lat,f.lng);
+    if (d<minDist){minDist=d;nearest=f;}
+  });
+  if (!nearest) return;
+
+  const routeDist = (minDist*1.3).toFixed(2);
+  const routeTime = Math.round((routeDist/30)*60);
+
+  routeLayer.clearLayers();
+  L.polyline([[lat,lng],[nearest.lat,nearest.lng]],{color:"#1a7fd4",weight:3,dashArray:"10 6",opacity:.8}).addTo(routeLayer);
+
+  document.getElementById("r-dist").textContent = routeDist;
+  document.getElementById("r-time").textContent = routeTime;
+  document.getElementById("r-name").textContent = nearest.name;
+  document.getElementById("r-type").textContent = TYPE_LABELS[nearest.type]+" · "+nearest.kec;
+  document.getElementById("r-layanan").innerHTML = "<b>Layanan:</b> "+nearest.layanan;
+  document.getElementById("r-jam").innerHTML = "<b>Jam:</b> "+nearest.jam;
+  document.getElementById("route-result").style.display = "block";
+  document.getElementById("btn-clear-route").style.display = "block";
+
+  routingActive = false;
+  const btn = document.getElementById("btn-routing");
+  btn.textContent = "📍 Aktifkan Mode Routing";
+  btn.style.background = "";
+  map.getContainer().style.cursor = "";
+  switchTab("routing");
+}
+
+function haversine(la1,ln1,la2,ln2){
+  const R=6371,dL=(la2-la1)*Math.PI/180,dG=(ln2-ln1)*Math.PI/180;
+  const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dG/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+/* ═══════════════════════════ FACILITY LIST ═══════════════════════════ */
+function renderFacilityList() {
+  const c = document.getElementById("facility-list");
+  c.innerHTML = "";
+  getFiltered().forEach(f => {
+    const col = DOT_COLORS[f.type];
+    const statusBadge = f.status === "aktif" ? "" :
+      `<span style="font-size:8.5px;padding:1px 5px;border-radius:3px;font-weight:700;background:${f.status==='renovasi'?'rgba(232,68,68,.12)':'rgba(245,158,11,.12)'};color:${f.status==='renovasi'?'#991b1b':'#92400e'}">${f.status.toUpperCase()}</span>`;
+    const div = document.createElement("div");
+    div.className = "fac-item";
+    div.innerHTML = `
+      <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0"></div>
+      <div class="fac-info" style="flex:1">
+        <h4>${f.name} ${statusBadge}</h4>
+        <p>${f.kec} · <span style="text-transform:capitalize;color:${col}">${f.type}</span> · ${f.jam}</p>
+      </div>
+      <div style="font-size:10px;color:#8a9bb0;flex-shrink:0">${f.dokter>0?f.dokter+'dr':''}</div>`;
+    div.onclick = () => { map.setView([f.lat,f.lng],15); onFacilityClick(f); };
+    c.appendChild(div);
+  });
+}
+
+/* ═══════════════════════════ CHARTS ═══════════════════════════ */
+let chartKec, chartDonut;
+
+function renderKecAccessBars() {
+  const cont = document.getElementById("kec-access-bars");
+  cont.innerHTML = "";
+  const sorted = [...KEC_ACCESS].sort((a,b)=>b.skor-a.skor);
+  sorted.forEach(k => {
+    const col = k.skor>=75?"#22c474":k.skor>=55?"#f59e0b":"#e84545";
+    cont.innerHTML += `
+      <div class="mini-bar-row">
+        <div class="mini-bar-label" title="${k.name}">${k.name}</div>
+        <div class="mini-bar-track"><div class="mini-bar-fill" style="width:${k.skor}%;background:${col}"></div></div>
+        <div class="mini-bar-val">${k.skor}</div>
+      </div>`;
+  });
+}
+
+function initCharts() {
+  const tc = "rgba(74,96,128,0.8)", gc = "rgba(0,0,0,0.05)";
+  const kecData = {};
+  FACILITIES.forEach(f => { kecData[f.kec]=(kecData[f.kec]||0)+1; });
+  const sorted = Object.entries(kecData).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  if (chartKec) chartKec.destroy();
+  chartKec = new Chart(document.getElementById("chart-kec"), {
+    type:"bar",
+    data:{
+      labels:sorted.map(x=>x[0]),
+      datasets:[{
+        label:"Fasilitas",
+        data:sorted.map(x=>x[1]),
+        backgroundColor:sorted.map((_,i)=>i===0?"#0ec4a0":"#1a7fd4"),
+        borderRadius:6,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{
+        callbacks:{ afterLabel: ctx => {
+          const kn = sorted[ctx.dataIndex][0];
+          const ka = KEC_ACCESS.find(k=>k.name===kn);
+          return ka ? `Skor aksesibilitas: ${ka.skor}` : "";
+        }}
+      }},
+      scales:{
+        x:{ ticks:{color:tc,font:{size:8},maxRotation:40}, grid:{color:gc} },
+        y:{ beginAtZero:true, ticks:{stepSize:1,color:tc,font:{size:8}}, grid:{color:gc} }
+      }
+    }
+  });
+
+  const typeCount = { puskesmas:0, pustu:0, polindes:0, rs:0 };
+  FACILITIES.forEach(f=>typeCount[f.type]++);
+
+  if (chartDonut) chartDonut.destroy();
+  chartDonut = new Chart(document.getElementById("chart-donut"), {
+    type:"doughnut",
+    data:{
+      labels:["Puskesmas","Pustu","Polindes","RS/Klinik"],
+      datasets:[{
+        data:Object.values(typeCount),
+        backgroundColor:["#1a7fd4","#22c474","#f59e0b","#e84545"],
+        borderWidth:2, borderColor:"rgba(255,255,255,0.9)"
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:"bottom", labels:{ color:tc, font:{size:9}, padding:7, boxWidth:10 } } }
+    }
+  });
+
+  renderKecAccessBars();
+}
+
+/* ═══════════════════════════ TABS & FILTERS ═══════════════════════════ */
+function switchTab(id) {
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===id));
+  document.querySelectorAll(".tab-body").forEach(b=>b.classList.toggle("active",b.id==="tab-"+id));
+  if (id==="list") renderFacilityList();
+  if (window.innerWidth<=760) {
+    document.getElementById("panel").classList.add("expanded");
+    document.body.classList.add("panel-open");
+  }
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>switchTab(t.dataset.tab)));
+
+document.querySelectorAll(".fac-type").forEach(cb=>{
+  cb.addEventListener("change",()=>{ activeFilters[cb.value]=cb.checked; renderMarkers(); renderBuffers(); });
+});
+document.getElementById("toggle-buffer").addEventListener("change",renderBuffers);
+document.getElementById("toggle-blank").addEventListener("change",e=>{
+  e.target.checked ? blankLayer.addTo(map) : map.removeLayer(blankLayer);
+});
+document.getElementById("toggle-kec").addEventListener("change",e=>{
+  e.target.checked ? kecLayer.addTo(map) : map.removeLayer(kecLayer);
+});
+document.getElementById("buffer-radius").addEventListener("input",e=>{
+  bufferRadius=parseFloat(e.target.value);
+  document.getElementById("buf-val").textContent=bufferRadius+" km";
+  renderBuffers();
+});
+document.getElementById("kec-select").addEventListener("change",()=>{ renderMarkers(); renderBuffers(); renderFacilityList(); });
+document.getElementById("search-input").addEventListener("input",()=>{ renderMarkers(); renderFacilityList(); });
+document.getElementById("status-select").addEventListener("change",e=>{
+  activeStatusFilter=e.target.value; renderMarkers(); renderBuffers(); renderFacilityList();
+});
+
+function resetFilters(){
+  activeFilters={puskesmas:true,pustu:true,polindes:true,rs:true};
+  document.querySelectorAll(".fac-type").forEach(c=>c.checked=true);
+  document.getElementById("toggle-buffer").checked=true;
+  document.getElementById("toggle-blank").checked=false;
+  document.getElementById("toggle-kec").checked=true;
+  document.getElementById("kec-select").value="";
+  document.getElementById("search-input").value="";
+  document.getElementById("status-select").value="";
+  document.getElementById("buffer-radius").value=3;
+  bufferRadius=3; activeStatusFilter="";
+  document.getElementById("buf-val").textContent="3 km";
+  map.removeLayer(blankLayer);
+  if(!map.hasLayer(kecLayer)) kecLayer.addTo(map);
+  clearFocus();
+  renderMarkers(); renderBuffers(); renderFacilityList();
+}
+
+function exportData(){
+  const kecSel=document.getElementById("kec-select").value;
+  const facs=FACILITIES.filter(f=>!kecSel||f.kec===kecSel);
+  const gj={type:"FeatureCollection",features:facs.map(f=>({
+    type:"Feature",
+    geometry:{type:"Point",coordinates:[f.lng,f.lat]},
+    properties:{id:f.id,name:f.name,type:f.type,kecamatan:f.kec,layanan:f.layanan,jam:f.jam,
+      dokter:f.dokter,bidan:f.bidan,perawat:f.perawat,bed:f.bed,
+      bpjs:f.bpjs,status:f.status,akreditasi:f.akreditasi}
+  }))};
+  const blob=new Blob([JSON.stringify(gj,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="faskes_sumenep.geojson"; a.click();
+}
+
+/* ═══════════════════════════ MOBILE NAV + PANEL DRAWER ═══════════════════════════ */
+const menuToggle = document.getElementById("menu-toggle");
+const mobileDropdown = document.getElementById("mobile-dropdown");
+if (menuToggle) menuToggle.addEventListener("click", e=>{ e.stopPropagation(); mobileDropdown.classList.toggle("open"); });
+document.addEventListener("click", e=>{
+  if (mobileDropdown && mobileDropdown.classList.contains("open") && !mobileDropdown.contains(e.target) && e.target!==menuToggle) {
+    mobileDropdown.classList.remove("open");
+  }
+});
+const panelDrag = document.getElementById("panel-drag");
+if (panelDrag) panelDrag.addEventListener("click", ()=>{
+  document.getElementById("panel").classList.toggle("expanded");
+  document.body.classList.toggle("panel-open");
+});
+
+/* ═══════════════════════════ DEEP LINK FROM BERANDA ═══════════════════════════ */
+function applyIncomingParams() {
+  const p = new URLSearchParams(window.location.search);
+  const type = p.get("type");
+  const kec = p.get("kec");
+  const search = p.get("search");
+  const focusId = p.get("focus");
+
+  if (type && DOT_COLORS[type]) {
+    activeFilters = { puskesmas:false, pustu:false, polindes:false, rs:false };
+    activeFilters[type] = true;
+    document.querySelectorAll(".fac-type").forEach(cb=>{ cb.checked = cb.value===type; });
+  }
+  if (kec) {
+    const sel = document.getElementById("kec-select");
+    if ([...sel.options].some(o=>o.value===kec)) sel.value = kec;
+  }
+  if (search) document.getElementById("search-input").value = search;
+
+  renderMarkers(); renderBuffers(); renderFacilityList();
+
+  if (focusId) {
+    const f = FACILITIES.find(x=>String(x.id)===String(focusId));
+    if (f) {
+      map.setView([f.lat,f.lng],15);
+      onFacilityClick(f);
+      if (window.innerWidth<=760) { document.getElementById("panel").classList.remove("expanded"); document.body.classList.remove("panel-open"); }
+    }
+  } else if (window.innerWidth<=760 && (type || kec || search)) {
+    switchTab("list");
+  }
+}
+
+/* ═══════════════════════════ BOOT ═══════════════════════════ */
+window.addEventListener("load",()=>{
+  try{ initMap(); initCharts(); renderFacilityList(); applyIncomingParams(); }
+  catch(e){ console.error(e); }
+  setTimeout(()=>{
+    const ld=document.getElementById("loading");
+    if(!ld) return;
+    ld.style.opacity="0";
+    setTimeout(()=>{ if(ld.parentNode)ld.remove(); map&&map.invalidateSize(); },600);
+  },1400);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+﻿id;nama_fasilitas;type;kec;latitude;longitude;layanan;jam;dokter;bidan;perawat;tempat_tidur;bpjs;status;akreditasi;wilayah_kerja;pemilik
+1;RS Baghraf Health Care;rs;Batuan;-7.016514;113.8458928;Pelayanan Kesehatan Umum;24 Jam;9;10;25;226;Ya;aktif;Dasar;Rujukan Batuan;Perusahaan
+2;RS Ibu dan Anak Esto Ebhu;rs;Kota Sumenep;-7.0148579;113.8626216;Pelayanan Kesehatan Umum;24 Jam;16;7;73;39;Ya;aktif;Dasar;Rujukan Kota Sumenep;Perseorangan
+3;RSI Garam Kalianget;rs;Kalianget;-7.0469421;113.9300325;Pelayanan Kesehatan Umum;24 Jam;4;4;18;30;Ya;aktif;Dasar;Rujukan Kalianget;Organisasi Non Profit
+5;RSU Sumekar Sumenep;rs;Kota Sumenep;-7.0289714;113.8645189;Pelayanan Kesehatan Umum;24 Jam;8;8;45;62;Ya;aktif;Madya;Rujukan Kota Sumenep;Perseorangan
+6;RSUD Abuya Kangean;rs;Arjasa;-6.8355684;115.3197775;Pelayanan Kesehatan Umum;24 Jam;13;8;41;173;Ya;aktif;Madya;Rujukan Kabupaten;Pemda Kab./Kota
+7;RSUD Dr. H. Moh. Anwar;rs;Kota Sumenep;-7.0151594;113.863561;Pelayanan Kesehatan Umum;24 Jam;22;14;156;191;Ya;aktif;Paripurna;Rujukan Kabupaten;Pemda Kab./Kota
+8;Puskesmas Ambunten;puskesmas;Ambunten;-6.8923223;113.7418191;Pelayanan Kesehatan Umum;24 Jam;3;5;6;15;Ya;aktif;Madya;5 desa;Pemda Kab./Kota
+9;Puskesmas Arjasa;puskesmas;Arjasa;-6.8598814;115.2853437;Pelayanan Kesehatan Umum;24 Jam;5;4;6;10;Ya;aktif;Utama;Wilayah Arjasa / Kepulauan;Pemda Kab./Kota
+10;Puskesmas Batang Batang;puskesmas;Batang-Batang;-6.9472573;113.9986489;Pelayanan Kesehatan Umum;24 Jam;5;4;6;0;Ya;terbatas;Utama;8 desa;Pemda Kab./Kota
+12;Puskesmas Batu Putih;puskesmas;Batuputih;-6.9157405;113.9214755;Pelayanan Kesehatan Umum;24 Jam;5;6;13;0;Ya;aktif;Dasar;7 desa;Pemda Kab./Kota
+14;Puskesmas Batuan;puskesmas;Batuan;-7.0115965;113.8276829;Pelayanan Kesehatan Umum;24 Jam;4;4;12;20;Ya;terbatas;Dasar;8 desa;Pemda Kab./Kota
+15;Puskesmas Bluto;puskesmas;Bluto;-7.1051559;113.8116095;Pelayanan Kesehatan Umum;24 Jam;5;8;12;10;Ya;aktif;Utama;8 desa;Pemda Kab./Kota
+16;Puskesmas Dasuk;puskesmas;Dasuk;-6.8957508;113.8039391;Pelayanan Kesehatan Umum;24 Jam;2;10;8;0;Ya;renovasi;Dasar;7 desa;Pemda Kab./Kota
+17;Puskesmas Dungkek;puskesmas;Dungkek;-6.9768736;114.0939854;Pelayanan Kesehatan Umum;24 Jam;4;5;11;10;Ya;terbatas;Utama;4 desa;Pemda Kab./Kota
+18;Puskesmas Ganding;puskesmas;Ganding;-7.0407857;113.690088;Pelayanan Kesehatan Umum;24 Jam;5;4;13;15;Ya;aktif;Utama;6 desa;Pemda Kab./Kota
+19;Puskesmas Gapura;puskesmas;Gapura;-6.9975501;113.9594157;Pelayanan Kesehatan Umum;24 Jam;4;4;9;20;Ya;aktif;Madya;4 desa;Pemda Kab./Kota
+20;Puskesmas Gayam;puskesmas;Gayam;-7.1647698;114.3299525;Pelayanan Kesehatan Umum;24 Jam;4;4;11;5;Ya;aktif;Dasar;Wilayah Gayam / Kepulauan;Pemda Kab./Kota
+21;Puskesmas Giligenting;puskesmas;Giligenting;-7.1905614;113.898019;Pelayanan Kesehatan Umum;24 Jam;2;9;10;15;Ya;aktif;Utama;Wilayah Giligenting / Kepulauan;Pemda Kab./Kota
+23;Puskesmas Guluk-guluk;puskesmas;Guluk-Guluk;-7.0555957;113.6741635;Pelayanan Kesehatan Umum;24 Jam;5;7;13;0;Ya;aktif;Madya;5 desa;Pemda Kab./Kota
+24;Puskesmas Kalianget;puskesmas;Kalianget;-7.0389739;113.9001919;Pelayanan Kesehatan Umum;24 Jam;3;7;9;0;Ya;aktif;Dasar;7 desa;Pemda Kab./Kota
+25;Puskesmas Kangayan;puskesmas;Kangayan;-6.9184091;115.5595943;Pelayanan Kesehatan Umum;24 Jam;4;9;10;15;Ya;aktif;Utama;Wilayah Kangayan / Kepulauan;Pemda Kab./Kota
+26;Puskesmas Legung Timur;puskesmas;Batang-Batang;-6.9152305;114.0370979;Pelayanan Kesehatan Umum;24 Jam;5;4;7;20;Ya;aktif;Madya;5 desa;Pemda Kab./Kota
+27;Puskesmas Lenteng;puskesmas;Lenteng;-7.0314294;113.780332;Pelayanan Kesehatan Umum;24 Jam;4;9;7;0;Ya;aktif;Dasar;6 desa;Pemda Kab./Kota
+28;Puskesmas Manding;puskesmas;Manding;-6.9599117;113.8693918;Pelayanan Kesehatan Umum;24 Jam;2;10;14;15;Ya;aktif;Madya;6 desa;Pemda Kab./Kota
+30;Puskesmas Masalembu;puskesmas;Masalembu;-5.5720422;114.4225087;Pelayanan Kesehatan Umum;24 Jam;2;10;14;10;Ya;aktif;Dasar;Wilayah Masalembu / Kepulauan;Pemda Kab./Kota
+31;Puskesmas Moncek Tengah;puskesmas;Lenteng;-7.0677699;113.7450339;Pelayanan Kesehatan Umum;24 Jam;4;4;8;15;Ya;aktif;Madya;7 desa;Pemda Kab./Kota
+32;Puskesmas Nonggunong;puskesmas;Nonggunong;-7.080023;114.2792413;Pelayanan Kesehatan Umum;24 Jam;3;6;9;0;Ya;aktif;Utama;Wilayah Nonggunong / Kepulauan;Pemda Kab./Kota
+33;Puskesmas Pagerunan Besar;puskesmas;Sapeken;-6.95894;115.907798;Pelayanan Kesehatan Umum;24 Jam;2;10;14;15;Ya;aktif;Utama;Wilayah Sapeken / Kepulauan;Pemda Kab./Kota
+34;Puskesmas Pamolokan;puskesmas;Kota Sumenep;-7.0017102;113.8703854;Pelayanan Kesehatan Umum;24 Jam;3;7;10;0;Ya;aktif;Madya;8 desa;Pemda Kab./Kota
+35;Puskesmas Pandian;puskesmas;Kota Sumenep;-7.0047422;113.8519021;Pelayanan Kesehatan Umum;24 Jam;4;8;12;10;Ya;aktif;Paripurna;7 desa;Pemda Kab./Kota
+36;Puskesmas Pasongsongan;puskesmas;Pasongsongan;-6.8864494;113.6632244;Pelayanan Kesehatan Umum;24 Jam;4;5;10;15;Ya;aktif;Dasar;6 desa;Pemda Kab./Kota
+37;Puskesmas Pragaan;puskesmas;Pragaan;-7.1106748;113.6612329;Pelayanan Kesehatan Umum;24 Jam;3;8;11;20;Ya;aktif;Madya;4 desa;Pemda Kab./Kota
+38;Puskesmas Raas;puskesmas;Raas;-7.1528891;114.6145265;Pelayanan Kesehatan Umum;24 Jam;3;10;15;15;Ya;aktif;Dasar;Wilayah Raas / Kepulauan;Pemda Kab./Kota
+39;Puskesmas Rubaru;puskesmas;Rubaru;-6.958175;113.7531156;Pelayanan Kesehatan Umum;24 Jam;2;9;8;15;Ya;aktif;Utama;7 desa;Pemda Kab./Kota
+40;Puskesmas Sapeken;puskesmas;Sapeken;-7.0035692;115.7070925;Pelayanan Kesehatan Umum;24 Jam;2;6;13;15;Ya;terbatas;Dasar;Wilayah Sapeken / Kepulauan;Pemda Kab./Kota
+41;Puskesmas Saronggi;puskesmas;Saronggi;-7.0817627;113.8287173;Pelayanan Kesehatan Umum;24 Jam;5;10;6;5;Ya;aktif;Utama;6 desa;Pemda Kab./Kota
+42;Puskesmas Talango;puskesmas;Talango;-7.0639592;113.9528473;Pelayanan Kesehatan Umum;24 Jam;4;10;14;20;Ya;aktif;Utama;Wilayah Talango / Kepulauan;Pemda Kab./Kota
+43;Klinik Pratama Barokah;klinik;Ambunten;-6.88583;113.7489264;Pelayanan Kesehatan Umum;24 Jam;2;2;2;8;Tidak;aktif;-;Klinik Pratama;Perseorangan
+44;Klinik Pratama Kimia Farma;klinik;Kota Sumenep;-7.0105904;113.870759;Pelayanan Kesehatan Umum;24 Jam;2;2;2;4;Tidak;aktif;-;Klinik Pratama;Perusahaan
+45;Klinik Pratama Ummi;klinik;Talango;-7.0670474;113.9385123;Pelayanan Kesehatan Umum;24 Jam;2;1;6;4;Ya;aktif;-;Klinik Pratama;Perseorangan
+46;Klinik Tirta Amerta;klinik;Kota Sumenep;-7.02351;113.8702668;Pelayanan Kesehatan Umum;24 Jam;5;0;4;8;Ya;aktif;-;Klinik Swasta;Perseorangan
+47;Poliklinik Sang Timur;klinik;Kota Sumenep;-7.0214224;113.8778147;Pelayanan Kesehatan Umum;24 Jam;1;1;5;9;Ya;aktif;-;Klinik Swasta;Perseorangan
+48;Polres Sumenep;klinik;Kota Sumenep;-7.0173413;113.871731;Pelayanan Kesehatan Umum;24 Jam;5;2;2;5;Ya;aktif;-;Klinik Swasta;Polri
+49;PosKes 05.10.20. Sumenep;klinik;Kota Sumenep;-7.0098476;113.8598098;Pelayanan Kesehatan Umum;24 Jam;2;1;8;7;Tidak;aktif;-;Klinik Swasta;TNI
+50;KLINIK POSKES;klinik;Kota Sumenep;-7.0098476;113.8598098;Pelayanan Kesehatan Umum;24 Jam;1;2;8;5;Ya;aktif;-;Klinik Swasta;TNI
+51;Klinik Akbar Medika;klinik;Kota Sumenep;-6.9970193;113.8711721;Pelayanan Kesehatan Umum;24 Jam;2;1;1;9;Ya;aktif;-;Klinik Swasta;Perseorangan
+52;Klinik Az-Zahro;klinik;Kota Sumenep;-7.0094321;113.8705946;Pelayanan Kesehatan Umum;24 Jam;4;2;2;0;Ya;aktif;-;Klinik Swasta;Perseorangan
+53;Klinik Kimia Farma Sumenep;klinik;Kota Sumenep;-7.0105904;113.870759;Pelayanan Kesehatan Umum;24 Jam;4;2;7;5;Ya;aktif;-;Klinik Swasta;Perusahaan
+54;Klinik Nahdlatul Ulama;klinik;Kota Sumenep;-7.0203934;113.8561843;Pelayanan Kesehatan Umum;24 Jam;4;2;4;2;Ya;aktif;-;Klinik Swasta;Perseorangan
+55;Klinik Nu Pragaan;klinik;Pragaan;-7.1117834;113.6453935;Pelayanan Kesehatan Umum;24 Jam;1;3;7;8;Ya;aktif;-;Klinik Swasta;Perseorangan
+56;Klinik Polres Kab. Sumenep;klinik;Kota Sumenep;-7.0173413;113.871731;Pelayanan Kesehatan Umum;24 Jam;2;3;6;1;Tidak;aktif;-;Klinik Swasta;Polri
+57;Klinik Pratama Al-Amien Prenduan;klinik;Pragaan;-7.1128406;113.6549732;Pelayanan Kesehatan Umum;24 Jam;1;2;6;0;Tidak;aktif;-;Klinik Pratama;Perseorangan
+58;Klinik Pratama Difa Husada;klinik;Pragaan;-7.1069894;113.6720978;Pelayanan Kesehatan Umum;24 Jam;1;3;5;1;Ya;aktif;-;Klinik Pratama;Perseorangan
+59;Klinik Sang Timur;klinik;Kota Sumenep;-7.0214224;113.8778147;Pelayanan Kesehatan Umum;24 Jam;3;1;8;4;Tidak;aktif;-;Klinik Swasta;Perseorangan
+60;Klinik Sinyo Medika;klinik;Gapura;-7.0044608;113.9875146;Pelayanan Kesehatan Umum;24 Jam;5;2;4;7;Ya;aktif;-;Klinik Swasta;Perseorangan
+61;Klinik Utama Farhan;klinik;Kota Sumenep;-7.0127059;113.8644246;Pelayanan Kesehatan Umum;24 Jam;3;2;1;2;Ya;aktif;-;Klinik Utama;Perseorangan
+62;Klinik Utama Sumenep;klinik;Kota Sumenep;-7.020142;113.8765131;Pelayanan Kesehatan Umum;24 Jam;4;3;3;7;Ya;aktif;-;Klinik Utama;Perseorangan
+63;Klinik Wiraja Medica;klinik;Kota Sumenep;-7.007611;113.8727355;Pelayanan Kesehatan Umum;24 Jam;4;1;6;5;Tidak;aktif;-;Klinik Swasta;Perseorangan
+65;DR. Fita Rabianti;faskes;Guluk-Guluk;-7.0578401;113.68275;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+66;DR. Hidayatur Rahman;faskes;Arjasa;-6.8535261;115.2853075;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+67;DR. Indra Nurita Octavia;faskes;Bluto;-7.1016161;113.8090995;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+68;DR. Milatul Hasanah;faskes;Raas;-7.1579459;114.6118865;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+69;DR. Slamet Riadi;faskes;Gapura;-7.0028274;113.9579447;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+70;DR. Zulfa Ulin Nuha;faskes;Dasuk;-6.8973172;113.8024866;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+71;Dr. Andri Dwi Wahyudi, Sp.P;faskes;Kalianget;-7.0469421;113.9300325;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+72;Dr. Erliyati;faskes;Kota Sumenep;-7.0105904;113.870759;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+73;Dr. H. Susilo;faskes;Pragaan;-7.1093437;113.6528542;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+74;Dr. Hj. Erliyati, M.Kes;faskes;Kota Sumenep;-7.0105904;113.870759;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+75;Dr. Hj. Jetty Nudryah Ningrum, M.si;faskes;Kota Sumenep;-7.0120111;113.8658432;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+76;Dr. Laos Susantina;faskes;Gapura;-6.9947267;113.9623355;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+77;Dr. S. Susianto, M.SI;faskes;Pragaan;-7.1122574;113.6649129;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+78;Dr. Suhartinah;faskes;Kota Sumenep;-7.0094321;113.8705946;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+79;dr. Ahmad Fauzi;faskes;Kota Sumenep;-6.9977409;113.8750569;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+80;dr. Amita Safitri;faskes;Kota Sumenep;-7.0003365;113.8859596;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+81;dr. Amril Huda;faskes;Kota Sumenep;-7.02351;113.8702668;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+82;dr. Budi Herlambang;faskes;Kalianget;-7.0389739;113.9001919;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+83;dr. Darmawan Eko;faskes;Kota Sumenep;-7.0004058;113.865952;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+84;dr. Dina Istiyana R;faskes;Manding;-6.9564946;113.8772736;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+85;dr. Edi Kurnianto;faskes;Lenteng;-7.0256516;113.7790869;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+86;dr. Elizabeth Sinta Prahara O;faskes;Kota Sumenep;-7.0106557;113.8639985;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+87;dr. H. Hari Purwanto, M.Kes;faskes;Kota Sumenep;-7.0017102;113.8703854;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+88;dr. H. Miftahorrahman;faskes;Kota Sumenep;-7.0016668;113.8578169;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+89;dr. H. Moh. Saleh AS.;faskes;Kota Sumenep;-7.0084453;113.8534787;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+90;dr. Hj. Dwi Regnani;faskes;Saronggi;-7.0851486;113.8336131;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+91;dr. Hj. Jetty Nurdyah Ningrum;faskes;Kota Sumenep;-7.0120111;113.8658432;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+92;dr. Iin Husnaini Dwi Rahayu M;faskes;Ambunten;-6.892519;113.7470457;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+93;dr. Kusmuni, M.Kes;faskes;Bluto;-7.1051559;113.8116095;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+95;Henni Kusumawati;faskes;Kota Sumenep;-7.0106557;113.8639985;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+96;Tatik Kristiowati, M.Si;faskes;Kota Sumenep;-7.0130601;113.8619;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+97;drg. Novia Sri Wahyuni;faskes;Kota Sumenep;-7.0238831;113.8705072;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+98;Laboratorium Fortuna Sumenep;faskes;Kota Sumenep;-7.0151835;113.8657111;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+99;Laboratorium Wijaya Kusuma;faskes;Kota Sumenep;-7.0049604;113.8518685;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+100;Apotek Kamboja;faskes;Kota Sumenep;-7.0132542;113.8643197;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+101;Apotik Prima Sumenep;faskes;Kota Sumenep;-7.0106557;113.8639985;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+102;IF RSI Garam Kalianget;faskes;Kalianget;-7.0469421;113.9300325;Pelayanan Kesehatan Umum;24 Jam;27;18;38;210;Ya;aktif;Paripurna;Praktik Perorangan;Organisasi Non Profit
+103;Instalasi Farmasi RS Sumekar;faskes;Kota Sumenep;-7.0289714;113.8645189;Pelayanan Kesehatan Umum;24 Jam;18;17;44;88;Ya;aktif;Paripurna;Praktik Perorangan;Perseorangan
+104;Instalasi Farmasi RSUD Sumenep;faskes;Kota Sumenep;-7.0151594;113.863561;Pelayanan Kesehatan Umum;24 Jam;16;10;30;136;Ya;aktif;Madya;Praktik Perorangan;Pemda Kab./Kota
+105;Kimia Farma Sumenep;faskes;Kota Sumenep;-7.0102008;113.8702735;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perusahaan
+106;Internasional Optik Sumenep;faskes;Kota Sumenep;-7.0103628;113.8592435;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+107;Optik Angkasa Sumenep;faskes;Kota Sumenep;-7.0034803;113.8606071;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+108;Optik Jaya Sumenep;faskes;Kota Sumenep;-7.0110187;113.8591036;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+109;Optik Rakhma;faskes;Kota Sumenep;-7.0125412;113.8619642;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+110;Lapas Kelas III Arjasa;faskes;Arjasa;-6.8606965;115.2868604;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Kementerian Non-Kemenkes
+111;Rutan Kelas II B Sumenep;faskes;Kota Sumenep;-7.0144773;113.876353;Pelayanan Kesehatan Umum;24 Jam;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Kementerian Non-Kemenkes
+112;DPM Dr. ANDRI DWI WAHYUDI , Sp.P;dpm;Batuan;-7.0047;113.8579;Pelayanan Kesehatan Umum;08.00-14.00;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+113;DPM dr. Suhartinah;dpm;Kota Sumenep;-7.0058;113.8598;Pelayanan Kesehatan Umum;08.00-14.00;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+114;DPM dr. Hj.JETTY NURDYAH NINGRUM, M.si;dpm;Kota Sumenep;-7.0065;113.8614;Pelayanan Kesehatan Umum;08.00-14.00;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan
+115;dr LAOS SUSANTINA;dpm;Kota Sumenep;-7.0037;113.8622;Pelayanan Kesehatan Umum;08.00-14.00;1;0;1;0;Tidak;aktif;-;Praktik Perorangan;Perseorangan

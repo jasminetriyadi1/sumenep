@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SUMENEPSEHAT – WebGIS Aksesibilitas Faskes Kabupaten Sumenep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"/>
+<style>
+/* ═══════════════════ TOKENS ═══════════════════ */
+:root{
+  --blue:#1a7fd4;  --teal:#0ec4a0;  --ok:#22c474;
+  --warn:#f59e0b;  --danger:#e84545;
+  --dark:#0d1f35;  --mid:#4a6080;   --muted:#8a9bb0;
+  --bg:#e8eef4;
+  --glass:rgba(255,255,255,0.18);
+  --glass-border:rgba(255,255,255,0.35);
+  --glass-blur:18px;
+  --grad:linear-gradient(135deg,#0b3d6b 0%,#0e7f6a 50%,#14a88a 100%);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:'Inter',sans-serif;background:#0b2a40;color:#fff}
+
+/* ═══════════════════ PAGE TRANSITION ═══════════════════ */
+.page-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(135deg,#0b3d6b,#0e7f6a);
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+  transition:opacity .35s ease, transform .35s ease;
+}
+.page-overlay.hidden{opacity:0;transform:scale(1.06);pointer-events:none}
+.overlay-logo{display:flex;flex-direction:column;align-items:center;gap:10px}
+.overlay-icon{width:60px;height:60px;background:rgba(255,255,255,0.15);border-radius:18px;
+  display:grid;place-items:center;backdrop-filter:blur(8px)}
+.overlay-icon svg{width:30px;height:30px;fill:#fff}
+.overlay-text{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.overlay-sub{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:1.5px;text-transform:uppercase}
+
+/* ═══════════════════ NAVBAR ═══════════════════ */
+#navbar{
+  position:fixed;top:0;left:0;right:0;z-index:800;
+  height:62px;
+  display:flex;align-items:center;gap:16px;padding:0 28px;
+  background:rgba(11,42,64,0.72);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  backdrop-filter:blur(20px);
+  transition:background .3s;
+}
+#navbar.scrolled{background:rgba(11,30,50,0.92)}
+.nav-brand{display:flex;align-items:center;gap:11px;text-decoration:none}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--blue),var(--teal));
+  border-radius:11px;display:grid;place-items:center;flex-shrink:0;
+  box-shadow:0 4px 14px rgba(14,196,160,.35)}
+.brand-icon svg{width:20px;height:20px;fill:#fff}
+.brand-name{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.brand-tag{font-size:9.5px;color:rgba(255,255,255,.45);letter-spacing:.8px;margin-top:1px}
+.nav-links{display:flex;gap:2px;margin-left:auto;align-items:center}
+.nav-a{padding:7px 13px;border-radius:8px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.7);
+  text-decoration:none;cursor:pointer;border:none;background:none;transition:all .15s;white-space:nowrap}
+.nav-a:hover{color:#fff;background:rgba(255,255,255,.08)}
+.nav-a.active{color:#fff;background:rgba(255,255,255,.12)}
+.btn-login{
+  margin-left:8px;padding:8px 18px;border-radius:10px;font-size:12.5px;font-weight:700;
+  background:linear-gradient(135deg,var(--blue),var(--teal));color:#fff;border:none;cursor:pointer;
+  box-shadow:0 3px 12px rgba(26,127,212,.35);transition:opacity .2s,transform .15s
+}
+.btn-login:hover{opacity:.9;transform:translateY(-1px)}
+
+/* ═══════════════════ HERO ═══════════════════ */
+#hero{
+  min-height:100vh;position:relative;display:flex;align-items:center;
+  background:var(--grad);overflow:hidden;
+}
+.hero-bg-map{
+  position:absolute;inset:0;
+  background:url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Indonesia_Madura_island_location_map.svg/1200px-Indonesia_Madura_island_location_map.svg.png') center/cover no-repeat;
+  opacity:0.07;filter:blur(1px)
+}
+.hero-bg-grad{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(11,42,64,0.82) 0%,rgba(11,90,70,0.55) 50%,rgba(14,127,110,0.4) 100%);
+}
+/* animated grid lines */
+.hero-grid{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hero-grid::before{
+  content:'';position:absolute;inset:-50%;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  animation:gridScroll 14s linear infinite;
+}
+@keyframes gridScroll{0%{transform:translate(0,0)}100%{transform:translate(60px,60px)}}
+
+/* floating orbs */
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
+.orb-1{width:400px;height:400px;background:rgba(14,196,160,.15);top:-100px;right:5%}
+.orb-2{width:300px;height:300px;background:rgba(26,127,212,.18);bottom:-60px;left:8%;animation:orbFloat 8s ease-in-out infinite}
+.orb-3{width:200px;height:200px;background:rgba(14,196,160,.12);top:40%;right:25%;animation:orbFloat 10s ease-in-out infinite reverse}
+@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-30px)}}
+
+.hero-content{position:relative;z-index:10;padding:100px 7vw 80px;max-width:780px}
+.hero-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  backdrop-filter:blur(10px);border-radius:20px;
+  padding:6px 14px;font-size:11px;font-weight:700;letter-spacing:.6px;
+  color:rgba(255,255,255,.9);text-transform:uppercase;margin-bottom:22px;
+}
+.hero-pill-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pls 2s infinite}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.4}}
+.hero-h1{font-family:'Sora',sans-serif;font-size:clamp(32px,5vw,56px);font-weight:900;
+  line-height:1.1;color:#fff;margin-bottom:16px;letter-spacing:-1px}
+.hero-h1 .hi{color:var(--teal)}
+.hero-sub{font-size:16px;color:rgba(255,255,255,.65);line-height:1.75;max-width:560px;margin-bottom:34px}
+
+/* search box – glassmorphism */
+.hero-search{
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  backdrop-filter:blur(var(--glass-blur));
+  border-radius:20px;padding:18px 20px;max-width:620px;
+  box-shadow:0 8px 40px rgba(0,0,0,.25);
+}
+.search-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.stab{
+  padding:6px 13px;border-radius:8px;font-size:11.5px;font-weight:700;
+  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s
+}
+.stab:hover{background:rgba(255,255,255,.12);color:#fff}
+.stab.active{background:linear-gradient(135deg,var(--blue),var(--teal));border-color:transparent;color:#fff}
+.search-row{display:flex;gap:10px;flex-wrap:wrap}
+.search-row select,.search-row input{
+  flex:1;min-width:140px;padding:10px 13px;
+  border:1px solid rgba(255,255,255,.18);border-radius:10px;
+  background:rgba(255,255,255,.10);color:#fff;font-size:12.5px;font-family:'Inter',sans-serif;
+  outline:none;backdrop-filter:blur(6px);transition:border-color .2s
+}
+.search-row select:focus,.search-row input:focus{border-color:var(--teal)}
+.search-row select option{background:#0d2a40;color:#fff}
+.search-row input::placeholder{color:rgba(255,255,255,.4)}
+.btn-cari{
+  padding:10px 22px;border-radius:10px;font-size:12.5px;font-weight:700;
+  background:#c8f03a;color:#0d2a40;border:none;cursor:pointer;
+  box-shadow:0 3px 12px rgba(200,240,58,.35);transition:all .2s;white-space:nowrap
+}
+.btn-cari:hover{background:#d4f54a;transform:translateY(-1px)}
+
+.hero-lihat{
+  margin-top:16px;display:inline-flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:700;color:rgba(255,255,255,.7);
+  text-decoration:none;cursor:pointer;border:none;background:none;
+  padding:0;transition:color .2s
+}
+.hero-lihat:hover{color:#fff}
+.hero-lihat svg{width:16px;height:16px}
+
+/* ═══════════════════ STATS BAR ═══════════════════ */
+#statsbar{
+  background:rgba(255,255,255,0.07);
+  border-top:1px solid rgba(255,255,255,.08);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  backdrop-filter:blur(16px);
+  padding:18px 7vw;display:flex;gap:0;flex-wrap:wrap;
+  position:relative;z-index:5;
+}
+.stat-item{flex:1;min-width:150px;text-align:center;padding:8px 16px;
+  border-right:1px solid rgba(255,255,255,.1)}
+.stat-item:last-child{border-right:none}
+.stat-num{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,var(--teal),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-lbl{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;letter-spacing:.5px}
+
+/* ═══════════════════ FEATURES ═══════════════════ */
+#features{background:linear-gradient(180deg,#0b2a40 0%,#0d2035 100%);padding:80px 7vw}
+.section-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--teal);margin-bottom:10px}
+.section-h2{font-family:'Sora',sans-serif;font-size:clamp(24px,3.5vw,36px);font-weight:800;
+  color:#fff;margin-bottom:14px;letter-spacing:-.5px}
+.section-sub{font-size:14px;color:rgba(255,255,255,.5);max-width:560px;line-height:1.7;margin-bottom:48px}
+
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.feat-card{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:18px;padding:24px;cursor:pointer;
+  transition:transform .25s,border-color .25s,background .25s;position:relative;overflow:hidden
+}
+.feat-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(14,196,160,.06),rgba(26,127,212,.06));
+  opacity:0;transition:opacity .25s
+}
+.feat-card:hover{transform:translateY(-4px);border-color:rgba(14,196,160,.35);background:rgba(255,255,255,.09)}
+.feat-card:hover::before{opacity:1}
+.feat-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px}
+.feat-icon svg{width:22px;height:22px;fill:#fff}
+.feat-card h3{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:8px}
+.feat-card p{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.65}
+.feat-arrow{position:absolute;bottom:20px;right:20px;color:rgba(255,255,255,.2);font-size:18px;
+  transition:color .2s,transform .2s}
+.feat-card:hover .feat-arrow{color:var(--teal);transform:translate(3px,-3px)}
+
+/* ═══════════════════ MAP PREVIEW ═══════════════════ */
+#map-preview{background:#0a1e30;padding:60px 7vw;position:relative;overflow:hidden}
+.map-preview-inner{display:grid;grid-template-columns:1fr 1.6fr;gap:40px;align-items:center}
+.map-preview-text{position:relative;z-index:2}
+.map-preview-text h2{font-family:'Sora',sans-serif;font-size:clamp(22px,3vw,34px);
+  font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-.5px}
+.map-preview-text p{font-size:13px;color:rgba(255,255,255,.55);line-height:1.75;margin-bottom:24px}
+.map-preview-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.badge{display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;padding:6px 12px;font-size:11px;font-weight:600;color:rgba(255,255,255,.75)}
+.badge-dot{width:8px;height:8px;border-radius:50%}
+.btn-map{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:12px 24px;border-radius:12px;font-size:13px;font-weight:700;
+  background:linear-gradient(135deg,var(--blue),var(--teal));color:#fff;
+  border:none;cursor:pointer;box-shadow:0 4px 18px rgba(14,196,160,.3);
+  transition:opacity .2s,transform .2s
+}
+.btn-map:hover{opacity:.9;transform:translateY(-2px)}
+
+.map-window{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+  border-radius:22px;overflow:hidden;position:relative;aspect-ratio:16/10;
+  box-shadow:0 12px 60px rgba(0,0,0,.4)
+}
+.map-window-bar{
+  height:34px;background:rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;gap:7px;padding:0 14px
+}
+.win-dot{width:9px;height:9px;border-radius:50%}
+.map-window-body{background:#0e2336;height:calc(100% - 34px);position:relative;overflow:hidden}
+/* simulated map */
+.fake-map{width:100%;height:100%;background:linear-gradient(160deg,#0c2b45 40%,#0d3830 100%);position:relative}
+.fake-map-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:40px 40px
+}
+.fake-pin{position:absolute;width:12px;height:12px;border-radius:50%;
+  box-shadow:0 0 0 4px rgba(255,255,255,.15)}
+.map-label{position:absolute;font-size:9px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.5px}
+.fake-halo{position:absolute;border-radius:50%;border:1.5px dashed rgba(255,255,255,.12);animation:halospin 14s linear infinite}
+@keyframes halospin{0%{transform:translate(-50%,-50%) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
+.map-legend{
+  position:absolute;bottom:12px;left:12px;
+  background:rgba(13,32,53,0.85);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 11px;
+}
+.leg-row{display:flex;align-items:center;gap:7px;font-size:9px;color:rgba(255,255,255,.6);margin-bottom:4px}
+.leg-row:last-child{margin-bottom:0}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ═══════════════════ LOGIN MODAL ═══════════════════ */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:2000;
+  background:rgba(8,20,36,.75);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .22s
+}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal{
+  background:linear-gradient(160deg,#0f2d48,#0d3830);
+  border:1px solid rgba(255,255,255,.14);border-radius:24px;
+  padding:36px 38px;width:100%;max-width:420px;
+  transform:scale(.88);transition:transform .22s ease;
+  box-shadow:0 24px 80px rgba(0,0,0,.5);position:relative;overflow:hidden
+}
+.modal-backdrop.open .modal{transform:scale(1)}
+.modal::before{
+  content:'';position:absolute;top:-80px;right:-80px;width:220px;height:220px;
+  border-radius:50%;background:radial-gradient(circle,rgba(14,196,160,.12),transparent 70%)
+}
+.modal-close{
+  position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:8px;
+  background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);
+  font-size:16px;cursor:pointer;display:grid;place-items:center;transition:background .15s
+}
+.modal-close:hover{background:rgba(255,255,255,.14)}
+.modal-logo{display:flex;align-items:center;gap:11px;margin-bottom:24px}
+.modal-logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--blue),var(--teal));
+  border-radius:12px;display:grid;place-items:center}
+.modal-logo-icon svg{width:20px;height:20px;fill:#fff}
+.modal-h2{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;
+  margin-bottom:5px;letter-spacing:-.3px;position:relative;z-index:2}
+.modal-sub{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:26px;position:relative;z-index:2}
+
+.form-group{margin-bottom:16px;position:relative;z-index:2}
+.form-group label{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;
+  color:rgba(255,255,255,.55);margin-bottom:7px;text-transform:uppercase}
+.form-group input{
+  width:100%;padding:11px 14px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  border-radius:11px;color:#fff;font-size:13px;font-family:'Inter',sans-serif;
+  outline:none;transition:border-color .2s,background .2s
+}
+.form-group input:focus{border-color:var(--teal);background:rgba(255,255,255,.11)}
+.form-group input::placeholder{color:rgba(255,255,255,.3)}
+.form-row-check{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;position:relative;z-index:2}
+.form-row-check label{display:flex;align-items:center;gap:7px;font-size:12px;color:rgba(255,255,255,.55);cursor:pointer}
+.form-row-check input[type=checkbox]{accent-color:var(--teal);width:14px;height:14px}
+.form-row-check a{font-size:12px;color:var(--teal);text-decoration:none;font-weight:600}
+.form-row-check a:hover{text-decoration:underline}
+
+.btn-submit{
+  width:100%;padding:13px;border-radius:12px;font-size:14px;font-weight:700;
+  background:linear-gradient(135deg,var(--blue),var(--teal));color:#fff;
+  border:none;cursor:pointer;box-shadow:0 4px 18px rgba(14,196,160,.3);
+  transition:opacity .2s,transform .15s;position:relative;z-index:2
+}
+.btn-submit:hover{opacity:.9;transform:translateY(-1px)}
+.modal-divider{display:flex;align-items:center;gap:10px;margin:20px 0;position:relative;z-index:2}
+.modal-divider::before,.modal-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1)}
+.modal-divider span{font-size:11px;color:rgba(255,255,255,.3)}
+.btn-guest{
+  width:100%;padding:11px;border-radius:12px;font-size:13px;font-weight:600;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
+  color:rgba(255,255,255,.75);cursor:pointer;transition:all .2s;position:relative;z-index:2
+}
+.btn-guest:hover{background:rgba(255,255,255,.11);color:#fff}
+.modal-note{text-align:center;font-size:11px;color:rgba(255,255,255,.3);margin-top:16px;position:relative;z-index:2}
+.modal-note span{color:var(--teal);cursor:pointer;font-weight:600}
+
+/* ═══════════════════ FOOTER ═══════════════════ */
+#footer{
+  background:#060f1a;border-top:1px solid rgba(255,255,255,.06);
+  padding:32px 7vw;display:flex;flex-wrap:wrap;align-items:center;
+  gap:12px;justify-content:space-between
+}
+.footer-brand{display:flex;align-items:center;gap:10px}
+.footer-brand-name{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#fff}
+.footer-brand-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:1px}
+.footer-links{display:flex;gap:18px;flex-wrap:wrap}
+.footer-links a{font-size:11.5px;color:rgba(255,255,255,.35);text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:rgba(255,255,255,.7)}
+.footer-copy{font-size:10.5px;color:rgba(255,255,255,.25);width:100%;text-align:center;margin-top:8px}
+
+/* ═══════════════════ TRANSITIONS ═══════════════════ */
+/* blow-up: element scales up & fades in */
+@keyframes blowUp{
+  0%{opacity:0;transform:scale(.88)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes fadeSlideUp{
+  0%{opacity:0;transform:translateY(18px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+.hero-pill{animation:fadeSlideUp .5s ease both .2s}
+.hero-h1{animation:blowUp .55s cubic-bezier(.2,.8,.3,1) both .35s}
+.hero-sub{animation:fadeSlideUp .5s ease both .5s}
+.hero-search{animation:blowUp .5s cubic-bezier(.2,.8,.3,1) both .6s}
+.hero-lihat{animation:fadeSlideUp .5s ease both .75s}
+
+/* scroll reveal via JS */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .45s ease,transform .45s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* page-change transition */
+@keyframes zoomOut{
+  0%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.07)}
+}
+.leaving{animation:zoomOut .3s ease forwards}
+
+/* ═══════════════════ RESPONSIVE ═══════════════════ */
+@media(max-width:900px){
+  .map-preview-inner{grid-template-columns:1fr}
+  .map-window{aspect-ratio:16/9}
+  .stat-item{min-width:120px}
+}
+@media(max-width:600px){
+  #navbar{padding:0 16px}
+  .hero-content{padding:90px 5vw 60px}
+  .nav-a:not(.btn-login){display:none}
+  #statsbar{padding:14px 5vw}
+  #features,#map-preview{padding:50px 5vw}
+  .modal{padding:28px 22px;margin:0 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- PAGE OVERLAY / INTRO -->
+<div class="page-overlay" id="pageOverlay">
+  <div class="overlay-logo">
+    <div class="overlay-icon">
+      <img src="Logo/logo_sumenep-removebg-preview.png" alt="Logo" style="width:60px;height:auto">
+    </div>
+    <div class="overlay-text">SUMENEPSEHAT</div>
+    <div class="overlay-sub">WebGIS Aksesibilitas Faskes</div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a class="nav-brand" href="#">
+    <div class="brand-icon">
+      <img src="Logo/logo-removebg-preview (1).png" alt="Logo" style="width:100%;height:auto">
+    </div>
+    <div>
+      <div class="brand-name">SUMENEPSEHAT</div>
+      <div class="brand-tag">WEBGIS AKSESIBILITAS FASKES</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a class="nav-a active" href="#hero">Beranda</a>
+    <a class="nav-a" href="peta.html">Peta Faskes</a>
+    <a class="nav-a" href="dashboard.html#statistik">Statistik</a>
+    <a class="nav-a" href="dashboard.html#aksesibilitas">Aksesibilitas</a>
+    <a class="nav-a" href="#map-preview">Tentang</a>
+    <button class="btn-login nav-a" id="openLogin">Masuk</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-map"></div>
+  <div class="hero-bg-grad"></div>
+  <div class="hero-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-content">
+    <div class="hero-pill">
+      <span class="hero-pill-dot"></span>
+      Sistem Informasi Geografis · Sumenep 2025
+    </div>
+    <h1 class="hero-h1">Temukan Fasilitas<br/>Kesehatan<br/><span class="hi">Terdekat di Sumenep</span></h1>
+    <p class="hero-sub">Pemetaan aksesibilitas Puskesmas, Pustu, Polindes, dan Rumah Sakit di seluruh Kabupaten Sumenep. Identifikasi blank spot dan routing ke faskes terdekat.</p>
+
+    <div class="hero-search">
+      <div class="search-tabs">
+        <button class="stab active" data-type="">Semua Faskes</button>
+        <button class="stab" data-type="puskesmas">Puskesmas</button>
+        <button class="stab" data-type="pustu">Pustu</button>
+        <button class="stab" data-type="rs">RS / Klinik</button>
+        <button class="stab" data-type="polindes">Polindes</button>
+      </div>
+      <div class="search-row">
+        <select id="hero-kec">
+          <option value="">📍 Semua Kecamatan</option>
+          <option>Kota Sumenep</option><option>Kalianget</option>
+          <option>Lenteng</option><option>Bluto</option>
+          <option>Saronggi</option><option>Ambunten</option>
+          <option>Rubaru</option><option>Dasuk</option>
+          <option>Manding</option><option>Batang-Batang</option>
+          <option>Dungkek</option><option>Gapura</option>
+          <option>Talango</option><option>Giligenting</option>
+          <option>Gayam</option><option>Nonggunong</option>
+        </select>
+        <input id="hero-q" type="text" placeholder="Cari nama faskes atau dokter…"/>
+        <button class="btn-cari" id="heroCari">Cari 🔍</button>
+      </div>
+    </div>
+
+    <button class="hero-lihat" id="heroLihatPeta">
+      Atau, lihat semua peta fasilitas kesehatan
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div id="statsbar">
+  <div class="stat-item reveal">
+    <div class="stat-num">37</div>
+    <div class="stat-lbl">Total Faskes Terpetakan</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-num">16</div>
+    <div class="stat-lbl">Puskesmas Aktif</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-num">27</div>
+    <div class="stat-lbl">Kecamatan Dianalisis</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-num">4</div>
+    <div class="stat-lbl">Zona Blank Spot Kritis</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-num">85%</div>
+    <div class="stat-lbl">Cakupan Populasi Terlayani</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-eyebrow reveal">Fitur Utama</div>
+  <h2 class="section-h2 reveal">Semua yang kamu butuhkan<br/>untuk analisis aksesibilitas</h2>
+  <p class="section-sub reveal">Dari visualisasi peta interaktif hingga analisis statistik keterjangkauan layanan kesehatan di Sumenep.</p>
+
+  <div class="feat-grid">
+    <div class="feat-card reveal" id="fc-peta" style="cursor:pointer" onclick="window.location.href='peta.html'">
+      <div class="feat-icon" style="background:linear-gradient(135deg,#1a7fd4,#0ec4a0)">
+        <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+      </div>
+      <h3>Peta Interaktif</h3>
+      <p>Visualisasi persebaran faskes dengan layer filter kecamatan, tipe, dan radius buffer. Zoom sampai level desa.</p>
+      <div class="feat-arrow">↗</div>
+    </div>
+
+    <div class="feat-card reveal">
+      <div class="feat-icon" style="background:linear-gradient(135deg,#f59e0b,#e84545)">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+      </div>
+      <h3>Deteksi Blank Spot</h3>
+      <p>Identifikasi otomatis wilayah di luar radius layanan semua faskes — zona kritis prioritas intervensi kebijakan.</p>
+      <div class="feat-arrow">↗</div>
+    </div>
+
+    <div class="feat-card reveal">
+      <div class="feat-icon" style="background:linear-gradient(135deg,#22c474,#0ec4a0)">
+        <svg viewBox="0 0 24 24"><path d="M9 11.24V7.5C9 6.12 10.12 5 11.5 5S14 6.12 14 7.5v3.74c1.21-.81 2-2.18 2-3.74C16 5.01 13.99 3 11.5 3S7 5.01 7 7.5c0 1.56.79 2.93 2 3.74zm9.84 4.63l-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74l-3.43-.72c-.08-.01-.15-.03-.24-.03-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.01-.07.02-.14.02-.2 0-.62-.38-1.16-.91-1.38z"/></svg>
+      </div>
+      <h3>Routing ke Faskes</h3>
+      <p>Estimasi jarak dan waktu tempuh ke faskes terdekat berdasarkan kelas jalan dan kecepatan rata-rata.</p>
+      <div class="feat-arrow">↗</div>
+    </div>
+
+    <div class="feat-card reveal" id="fc-stats" style="cursor:pointer" onclick="window.location.href='dashboard.html#statistik'">
+      <div class="feat-icon" style="background:linear-gradient(135deg,#8b5cf6,#1a7fd4)">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+      </div>
+      <h3>Statistik Aksesibilitas</h3>
+      <p>Dashboard skor aksesibilitas per kecamatan, distribusi tipe faskes, dan grafik komparatif antar wilayah.</p>
+      <div class="feat-arrow">↗</div>
+    </div>
+  </div>
+</section>
+
+<!-- MAP PREVIEW -->
+<section id="map-preview">
+  <div class="map-preview-inner">
+    <div class="map-preview-text reveal">
+      <div class="section-eyebrow">Peta Interaktif</div>
+      <h2>Visualisasi Faskes<br/>se-Kabupaten Sumenep</h2>
+      <p>Jelajahi persebaran fasilitas kesehatan di 27 kecamatan Sumenep. Filter berdasarkan tipe, lihat radius buffer, dan analisis cakupan layanan.</p>
+      <div class="map-preview-badges">
+        <div class="badge"><span class="badge-dot" style="background:#1a7fd4"></span>16 Puskesmas</div>
+        <div class="badge"><span class="badge-dot" style="background:#22c474"></span>9 Pustu</div>
+        <div class="badge"><span class="badge-dot" style="background:#f59e0b"></span>8 Polindes</div>
+        <div class="badge"><span class="badge-dot" style="background:#e84545"></span>4 RS / Klinik</div>
+      </div>
+      <button class="btn-map" id="mapPreviewBtn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2.5"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5z"/></svg>
+        Buka Peta Sekarang
+      </button>
+    </div>
+
+    <div class="map-window reveal">
+      <div class="map-window-bar">
+        <div class="win-dot" style="background:#e84545"></div>
+        <div class="win-dot" style="background:#f59e0b"></div>
+        <div class="win-dot" style="background:#22c474"></div>
+        <span style="font-size:10px;color:rgba(255,255,255,.3);margin-left:8px">WebGIS Aksesibilitas Faskes · Sumenep</span>
+      </div>
+      <div class="map-window-body">
+        <div class="fake-map">
+          <div class="fake-map-grid"></div>
+          <!-- halos -->
+          <div class="fake-halo" style="width:80px;height:80px;top:35%;left:38%;"></div>
+          <div class="fake-halo" style="width:60px;height:60px;top:52%;left:62%;animation-duration:10s"></div>
+          <div class="fake-halo" style="width:50px;height:50px;top:22%;left:55%;animation-duration:18s"></div>
+          <!-- pins -->
+          <div class="fake-pin" style="top:35%;left:38%;background:#1a7fd4"></div>
+          <div class="fake-pin" style="top:22%;left:55%;background:#e84545"></div>
+          <div class="fake-pin" style="top:52%;left:62%;background:#1a7fd4"></div>
+          <div class="fake-pin" style="top:68%;left:28%;background:#22c474"></div>
+          <div class="fake-pin" style="top:45%;left:75%;background:#f59e0b"></div>
+          <div class="fake-pin" style="top:28%;left:80%;background:#1a7fd4"></div>
+          <div class="fake-pin" style="top:70%;left:55%;background:#e84545"></div>
+          <div class="fake-pin" style="top:15%;left:25%;background:#22c474"></div>
+          <!-- labels -->
+          <div class="map-label" style="top:33%;left:40%">Kota Sumenep ▲</div>
+          <div class="map-label" style="top:50%;left:64%">Kalianget</div>
+          <div class="map-label" style="top:65%;left:22%">Manding</div>
+          <!-- legend -->
+          <div class="map-legend">
+            <div class="leg-row"><div class="leg-dot" style="background:#1a7fd4"></div>Puskesmas</div>
+            <div class="leg-row"><div class="leg-dot" style="background:#e84545"></div>RS / Klinik</div>
+            <div class="leg-row"><div class="leg-dot" style="background:#22c474"></div>Pustu</div>
+            <div class="leg-row"><div class="leg-dot" style="background:#f59e0b"></div>Polindes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="footer">
+  <div class="footer-brand">
+    <div class="brand-icon" style="width:34px;height:34px;border-radius:9px">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+    </div>
+    <div>
+      <div class="footer-brand-name">SUMENEPSEHAT</div>
+      <div class="footer-brand-sub">WebGIS Aksesibilitas Fasilitas Kesehatan</div>
+    </div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Beranda</a>
+    <a href="#features">Fitur</a>
+    <a id="footerPeta">Peta</a>
+    <a id="footerDashboard">Dashboard</a>
+    <a href="#">Tentang</a>
+  </div>
+  <div class="footer-copy">© 2025 WebGIS Aksesibilitas Faskes · Teknik Geomatika ITS · Kabupaten Sumenep</div>
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal-backdrop" id="loginModal">
+  <div class="modal">
+    <button class="modal-close" id="closeLogin">✕</button>
+    <div class="modal-logo">
+      <div class="modal-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+      </div>
+      <div>
+        <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#fff">SUMENEPSEHAT</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.4)">WebGIS Aksesibilitas Faskes</div>
+      </div>
+    </div>
+    <h2 class="modal-h2">Selamat Datang</h2>
+    <p class="modal-sub">Masuk untuk mengakses dashboard lengkap & fitur analisis</p>
+
+    <div class="form-group">
+      <label>Email / Username</label>
+      <input type="email" id="loginEmail" placeholder="email@contoh.com" autocomplete="username"/>
+    </div>
+    <div class="form-group">
+      <label>Kata Sandi</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <div class="form-row-check">
+      <label><input type="checkbox"/> Ingat saya</label>
+      <a href="#">Lupa sandi?</a>
+    </div>
+    <button class="btn-submit" id="loginBtn">Masuk ke Dashboard</button>
+
+    <div class="modal-divider"><span>atau</span></div>
+    <button class="btn-guest" id="guestBtn">Lanjutkan sebagai Tamu (lihat peta)</button>
+    <p class="modal-note">Belum punya akun? <span id="toRegister">Daftar di sini</span></p>
+  </div>
+</div>
+
+<script>
+/* ═══════ PAGE OVERLAY HIDE ═══════ */
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    document.getElementById('pageOverlay').classList.add('hidden');
+  }, 700);
+});
+
+/* ═══════ NAVBAR SCROLL ═══════ */
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+/* ═══════ SEARCH TABS ═══════ */
+let heroType = '';
+document.querySelectorAll('.stab').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.stab').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    heroType = b.dataset.type;
+  });
+});
+
+/* ═══════ NAVIGATE WITH BLOW-UP TRANSITION ═══════ */
+function navigateTo(url) {
+  document.body.classList.add('leaving');
+  // also show overlay blow-up
+  const ov = document.getElementById('pageOverlay');
+  ov.classList.remove('hidden');
+  ov.style.transition = 'opacity .28s ease';
+  ov.style.opacity = '0';
+  setTimeout(() => { ov.style.opacity = '1'; }, 10);
+  setTimeout(() => { window.location.href = url; }, 320);
+}
+
+function goToMap() {
+  const kec = document.getElementById('hero-kec').value;
+  const q = document.getElementById('hero-q').value.trim();
+  const params = new URLSearchParams();
+  if (heroType) params.set('type', heroType);
+  if (kec) params.set('kec', kec);
+  if (q) params.set('search', q);
+  const qs = params.toString();
+  navigateTo('peta.html' + (qs ? '?' + qs : ''));
+}
+
+document.getElementById('heroCari').addEventListener('click', goToMap);
+document.getElementById('hero-q').addEventListener('keydown', e => { if (e.key === 'Enter') goToMap(); });
+document.getElementById('heroLihatPeta').addEventListener('click', () => navigateTo('peta.html'));
+document.getElementById('mapPreviewBtn').addEventListener('click', () => navigateTo('peta.html'));
+document.getElementById('footerPeta').addEventListener('click', () => navigateTo('peta.html'));
+document.getElementById('footerDashboard').addEventListener('click', () => navigateTo('dashboard.html#statistik'));
+
+/* ═══════ LOGIN MODAL ═══════ */
+function openModal() {
+  document.getElementById('loginModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('loginModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Add click handler for statistics button
+const statsBtn = document.querySelector('[href="dashboard.html#statistik"]');
+if (statsBtn) statsBtn.addEventListener('click', () => navigateTo('dashboard.html#statistik'));
+
+const aksesBnt = document.querySelector('[href="dashboard.html#aksesibilitas"]');
+if (aksesBnt) aksesBnt.addEventListener('click', () => navigateTo('dashboard.html#aksesibilitas'));
+
+document.getElementById('openLogin').addEventListener('click', openModal);
+document.getElementById('closeLogin').addEventListener('click', closeModal);
+document.getElementById('loginModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('loginModal')) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (!email || !pass) { alert('Isi email dan kata sandi terlebih dahulu.'); return; }
+  closeModal();
+  navigateTo('dashboard.html');
+});
+
+document.getElementById('guestBtn').addEventListener('click', () => {
+  closeModal();
+  navigateTo('dashboard.html');
+});
+
+document.getElementById('toRegister').addEventListener('click', () => {
+  alert('Fitur pendaftaran dalam pengembangan. Gunakan akun demo atau akses sebagai tamu.');
+});
+
+/* ═══════ SCROLL REVEAL ═══════ */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }});
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
