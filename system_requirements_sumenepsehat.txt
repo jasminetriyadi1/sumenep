@@ -1,0 +1,184 @@
+================================================================
+     SYSTEM REQUIREMENTS — WebGIS SUMENEPSEHAT
+     Aksesibilitas Fasilitas Kesehatan Kabupaten Sumenep
+     Teknik Geomatika ITS · 2025
+================================================================
+
+
+----------------------------------------------------------------
+1. PERANGKAT KERAS PENGGUNA (CLIENT)
+----------------------------------------------------------------
+
+Komponen        Minimum                     Rekomendasi
+-----------     --------------------------  --------------------------
+Prosesor        Dual-core 1.5 GHz           Quad-core 2.4 GHz ke atas
+RAM             2 GB                        4 GB ke atas
+Layar           800 x 600 piksel            1280 x 720 piksel ke atas
+GPU             Tidak wajib                 GPU terintegrasi sudah cukup
+Perangkat       PC, laptop, tablet, smartphone (semua platform didukung)
+
+Catatan:
+- Sistem berjalan sepenuhnya di sisi browser (client-side only).
+- Tidak ada pemrosesan berat di sisi klien sehingga spesifikasi
+  rendah pun sudah mencukupi untuk penggunaan normal.
+
+
+----------------------------------------------------------------
+2. HOSTING & DEPLOYMENT
+----------------------------------------------------------------
+
+Komponen            Keterangan
+-----------------   -----------------------------------------------
+Tipe hosting        Static file hosting (tidak butuh server aktif)
+                    Contoh: GitHub Pages, Netlify, Apache, Nginx
+Server minimum      1 vCPU · 512 MB RAM · 1 GB storage
+Backend             TIDAK diperlukan (client-side only)
+Database            TIDAK diperlukan (data embedded JS / GeoJSON)
+Runtime produksi    TIDAK butuh Node.js / PHP / Python / Ruby
+SSL/HTTPS           Direkomendasikan (diperlukan untuk Geolocation API)
+
+Catatan:
+- Seluruh logika sistem berjalan di browser pengguna.
+- File yang perlu di-host hanya: .html, .css, .js, .geojson
+- Tidak ada koneksi database atau session management.
+
+
+----------------------------------------------------------------
+3. BROWSER YANG DIDUKUNG
+----------------------------------------------------------------
+
+Browser             Versi Minimum   Status
+-----------------   -------------   ----------------------------
+Google Chrome       v90+            Direkomendasikan utama
+Mozilla Firefox     v88+            Didukung penuh
+Microsoft Edge      v90+            Didukung (Chromium-based)
+Safari              v14+            Didukung (iOS & macOS)
+Opera               v76+            Didukung (Chromium-based)
+Internet Explorer   Semua versi     TIDAK didukung
+
+Alasan IE tidak didukung:
+- Sistem menggunakan ES6+ (arrow function, const/let, template literal)
+- IntersectionObserver API tidak tersedia di IE
+- Canvas renderer Leaflet tidak optimal di IE
+- Chart.js v4 tidak mendukung IE
+
+
+----------------------------------------------------------------
+4. KEBUTUHAN JARINGAN / KONEKSI INTERNET
+----------------------------------------------------------------
+
+Parameter               Nilai
+---------------------   ----------------------------------------
+Kecepatan minimum       1 Mbps (beban awal ~3–5 MB)
+Kecepatan rekomendasi   5 Mbps ke atas (agar tile peta lancar)
+Latensi                 < 200 ms ke server CDN (optimal)
+Koneksi offline         TIDAK didukung (tile peta butuh internet)
+Protokol                HTTP/HTTPS
+
+Estimasi beban data per sesi:
+- Library CDN (Leaflet + Chart.js)    : ~200 KB
+- Google Fonts                        : ~50 KB
+- CartoDB tile peta (per viewport)    : ~500 KB – 2 MB
+- GeoJSON batas kecamatan             : ~300 KB
+- GeoJSON OSM faskes                  : ~150 KB
+- File JS + CSS sistem                : ~100 KB
+                               Total  : ~3–5 MB (load awal)
+
+Sumber CDN eksternal yang diakses:
+- cdnjs.cloudflare.com  (Leaflet.js, Chart.js)
+- cartodb.net            (tile peta dasar light_all)
+- fonts.googleapis.com  (Google Fonts metadata)
+- fonts.gstatic.com     (file font Sora & Inter)
+
+
+----------------------------------------------------------------
+5. LIBRARY & DEPENDENSI EKSTERNAL
+----------------------------------------------------------------
+
+Library               Versi       Sumber          Wajib / Opsional
+-------------------   ---------   -------------   ----------------
+Leaflet.js            1.9.4       CDN             WAJIB
+Chart.js              4.4.1       CDN             WAJIB
+CartoDB Basemap       tile CDN    cartodb.net     WAJIB
+Google Fonts          CDN         googleapis      Opsional
+  - Sora (wght 300–900)
+  - Inter (wght 300–700)
+GeoJSON data          lokal       file sistem     WAJIB
+  - KabupatenSumenep.geojson
+  - OSM_sumenep.geojson
+
+Hanya untuk fase PENGEMBANGAN (tidak diperlukan di produksi):
+-------------------   ---------   ----------------------------
+Node.js               v18+        Untuk build & docx generation
+npm / docx package    v9+         Untuk generate dokumen Word
+OpenStreetMap API     Overpass    Sumber data faskes OSM
+
+
+----------------------------------------------------------------
+6. FITUR BROWSER YANG HARUS DIAKTIFKAN
+----------------------------------------------------------------
+
+Fitur API                   Status      Kegunaan dalam Sistem
+-------------------------   ---------   --------------------------------
+JavaScript (ES6+)           WAJIB       Seluruh logika sistem
+Canvas API                  WAJIB       Renderer Leaflet (preferCanvas)
+Fetch API / XHR             WAJIB       Memuat tile peta & CDN
+IntersectionObserver API    WAJIB       Animasi scroll reveal (beranda)
+History API                 WAJIB       URL hash view switching (dashboard)
+CSS Custom Properties       WAJIB       Variabel warna & layout
+Geolocation API             Opsional    Deteksi posisi pengguna (routing)
+localStorage                Tidak wajib Sistem tidak menyimpan state lokal
+Service Worker / PWA        Tidak wajib Belum diimplementasikan
+
+
+----------------------------------------------------------------
+7. KEBUTUHAN PENGEMBANGAN (DEVELOPMENT ENVIRONMENT)
+----------------------------------------------------------------
+
+Tools               Versi       Kegunaan
+-----------------   ---------   ------------------------------------
+Node.js             v18+        Generate dokumen .docx laporan
+npm                 v9+         Manajemen paket (docx, dll.)
+Git                 v2+         Version control kode sumber
+Text editor / IDE   bebas       VS Code, Sublime Text, dll.
+Browser DevTools    bawaan      Debug JS, inspeksi network, console
+
+Perintah instalasi dependensi pengembangan:
+  npm install -g docx
+
+Tidak diperlukan:
+  - Webpack / Vite / bundler (tidak ada build step)
+  - TypeScript compiler
+  - Database (PostgreSQL, MySQL, MongoDB, dll.)
+  - Docker / containerization
+  - Backend framework (Express, Django, Laravel, dll.)
+
+
+----------------------------------------------------------------
+8. RINGKASAN KEUNGGULAN SISTEM
+----------------------------------------------------------------
+
++ Client-side only   : Tidak butuh backend, database, atau runtime
+                       server di lingkungan produksi.
+
++ Deployment mudah   : Cukup upload file statis ke hosting manapun.
+                       Bisa berjalan bahkan dari protokol file://.
+
++ Spesifikasi ringan : Berjalan di perangkat dengan RAM 2 GB dan
+                       prosesor entry-level sekalipun.
+
++ Cross-platform     : Mendukung Windows, macOS, Linux, Android, iOS
+                       selama menggunakan browser modern.
+
+- Ketergantungan CDN : Tile peta dan library membutuhkan koneksi
+                       internet aktif; tidak bisa digunakan offline.
+
+- Data statis        : Pembaruan data faskes memerlukan edit langsung
+                       pada file kode sumber (geodata.js / peta.js).
+
+
+================================================================
+     Dokumentasi disusun untuk keperluan Tugas Akhir
+     Teknik Geomatika — Institut Teknologi Sepuluh Nopember
+     Kabupaten Sumenep · 2025
+================================================================
